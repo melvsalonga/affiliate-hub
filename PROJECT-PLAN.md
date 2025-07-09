@@ -41,13 +41,13 @@
 ### Tech Stack:
 - **Frontend:** Next.js 15 (App Router)
 - **Styling:** Tailwind CSS
-- **Database:** PostgreSQL with Prisma ORM
-- **Authentication:** NextAuth.js
+- **Storage:** localStorage + API-only approach
+- **Authentication:** Google/Facebook OAuth (optional)
 - **Payment:** Stripe (for premium features)
 - **Hosting:** Vercel
 - **CDN:** Cloudflare
 - **Analytics:** Google Analytics 4
-- **Search:** Elasticsearch (later phase)
+- **Search:** API-based search
 
 ### API Integrations:
 - **Lazada Open Platform API**
@@ -66,10 +66,10 @@
 - [ ] Initialize Next.js 15 project with App Router
 - [ ] Set up project structure following Next.js conventions
 - [ ] Configure Tailwind CSS and basic styling
-- [ ] Set up PostgreSQL database with Prisma
-- [ ] Create basic database schema (products, categories, affiliates)
+- [ ] Create localStorage utilities for user data
 - [ ] Set up environment variables and configuration
 - [ ] Initialize Git repository and version control
+- [ ] Create basic TypeScript interfaces for product data
 
 ### Week 2: Core Components & Layout
 - [ ] Create main layout component with navigation
@@ -80,14 +80,14 @@
 - [ ] Set up responsive design system
 - [ ] Add loading states and error handling
 
-### Week 3: Database & API Setup
-- [ ] Design complete database schema
-- [ ] Set up Prisma models and migrations
-- [ ] Create API routes for product management
-- [ ] Implement basic CRUD operations
-- [ ] Set up data seeding scripts
+### Week 3: API & Data Management Setup
+- [ ] Create TypeScript interfaces for all platforms
+- [ ] Set up API routes for product aggregation
+- [ ] Implement localStorage utilities for user data
+- [ ] Create data transformation utilities
+- [ ] Set up error handling and validation
 - [ ] Create API routes for categories and filters
-- [ ] Add basic validation and error handling
+- [ ] Implement client-side caching strategies
 
 ### Week 4: First Platform Integration
 - [ ] Research and implement Lazada API integration
