@@ -74,11 +74,12 @@
 ### Week 2: Core Components & Layout
 - [x] Create main layout component with navigation
 - [x] Design and implement product card components
-- [ ] Create category filtering system
-- [ ] Implement search functionality (basic)
-- [ ] Create product detail page template
+- [x] Create category filtering system
+- [x] Implement search functionality (basic)
+- [x] Create product detail page template
 - [x] Set up responsive design system
 - [x] Add loading states and error handling
+- [x] Hide navbar search on search page
 
 ### Week 3: API & Data Management Setup
 - [ ] Create TypeScript interfaces for all platforms

@@ -29,6 +29,7 @@
 - [x] Create category filtering system with categories page
 - [x] Create individual category pages with filtering
 - [x] Add price range filtering and sorting options
+- [x] Hide navbar search on search page
 
 #### 🚧 Current Tasks:
 - [ ] Create more comprehensive mock data
