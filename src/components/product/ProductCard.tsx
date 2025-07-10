@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,9 +11,9 @@ interface ProductCardProps {
   className?: string;
 }
 
-export default function ProductCard({ 
-  product, 
-  showPlatform = true, 
+export default function ProductCard({
+  product,
+  showPlatform = true,
   showDescription = false,
   className = ''
 }: ProductCardProps) {
@@ -29,7 +27,7 @@ export default function ProductCard({
   const handleFavoriteToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (isFavorite) {
       storage.userFavorites.remove(product.id);
     } else {
@@ -41,7 +39,7 @@ export default function ProductCard({
   const handleAlertToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (hasAlert) {
       storage.priceAlerts.remove(product.id);
     } else {
@@ -51,7 +49,6 @@ export default function ProductCard({
   };
 
   const handleProductClick = () => {
-    // Track product view
     storage.recentProducts.add(product.id);
     storage.clickEvents.add(product.id, product.platform.id);
   };
@@ -67,7 +64,9 @@ export default function ProductCard({
 
   const calculateDiscount = () => {
     if (product.originalPrice && product.originalPrice > product.price) {
-      return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+      return Math.round(
+        ((product.originalPrice - product.price) / product.originalPrice) * 100
+      );
     }
     return product.discount || 0;
   };
@@ -86,9 +85,10 @@ export default function ProductCard({
   const discount = calculateDiscount();
 
   return (
-    <div className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200 overflow-hidden ${className}`}>
+    <div
+      className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200 overflow-hidden ${className}`}
+    >
       <div className="relative">
-        {/* Product Image */}
         <Link href={`/product/${product.id}`} onClick={handleProductClick}>
           <div className="relative w-full h-48 bg-gray-100">
             <Image
@@ -101,27 +101,28 @@ export default function ProductCard({
           </div>
         </Link>
 
-        {/* Platform Badge */}
         {showPlatform && (
-          <div className={`absolute top-2 left-2 ${getPlatformColor(product.platform.id)} text-white px-2 py-1 text-xs font-medium rounded`}>
+          <div
+            className={`absolute top-2 left-2 ${getPlatformColor(
+              product.platform.id
+            )} text-white px-2 py-1 text-xs font-medium rounded`}
+          >
             {product.platform.displayName}
           </div>
         )}
 
-        {/* Discount Badge */}
         {discount > 0 && (
           <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs font-bold rounded">
             -{discount}%
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="absolute bottom-2 right-2 flex space-x-1">
           <button
             onClick={handleFavoriteToggle}
             className={`p-2 rounded-full shadow-md transition-colors ${
-              isFavorite 
-                ? 'bg-red-500 text-white hover:bg-red-600' 
+              isFavorite
+                ? 'bg-red-500 text-white hover:bg-red-600'
                 : 'bg-white text-gray-600 hover:bg-gray-100'
             }`}
             title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
@@ -131,8 +132,8 @@ export default function ProductCard({
           <button
             onClick={handleAlertToggle}
             className={`p-2 rounded-full shadow-md transition-colors ${
-              hasAlert 
-                ? 'bg-blue-500 text-white hover:bg-blue-600' 
+              hasAlert
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
                 : 'bg-white text-gray-600 hover:bg-gray-100'
             }`}
             title={hasAlert ? 'Remove price alert' : 'Set price alert'}
@@ -142,7 +143,6 @@ export default function ProductCard({
         </div>
       </div>
 
-      {/* Product Info */}
       <div className="p-4">
         <Link href={`/product/${product.id}`} onClick={handleProductClick}>
           <h3 className="text-sm font-medium text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors">
@@ -156,7 +156,6 @@ export default function ProductCard({
           </p>
         )}
 
-        {/* Price Section */}
         <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="text-lg font-bold text-gray-900">
@@ -170,7 +169,6 @@ export default function ProductCard({
           </div>
         </div>
 
-        {/* Rating and Reviews */}
         {product.rating && (
           <div className="mt-2 flex items-center">
             <div className="flex items-center">
@@ -198,7 +196,6 @@ export default function ProductCard({
           </div>
         )}
 
-        {/* Shipping Info */}
         {product.shippingInfo && (
           <div className="mt-2 text-xs text-gray-600">
             {product.shippingInfo.cost === 0 ? (
@@ -207,27 +204,23 @@ export default function ProductCard({
               <span>Shipping: {formatPrice(product.shippingInfo.cost)}</span>
             )}
             {product.shippingInfo.estimatedDays && (
-              <span className="ml-2">
-                • {product.shippingInfo.estimatedDays} days
-              </span>
+              <span className="ml-2">• {product.shippingInfo.estimatedDays} days</span>
             )}
           </div>
         )}
 
-        {/* Location */}
         {product.location && (
-          <div className="mt-1 text-xs text-gray-500">
-            📍 {product.location}
-          </div>
+          <div className="mt-1 text-xs text-gray-500">📍 {product.location}</div>
         )}
 
-        {/* Call to Action */}
         <div className="mt-3">
           <a
             href={product.affiliateUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => storage.clickEvents.add(product.id, product.platform.id)}
+            onClick={() =>
+              storage.clickEvents.add(product.id, product.platform.id)
+            }
             className={`w-full ${getPlatformColor(product.platform.id)} text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center`}
           >
             View on {product.platform.displayName}
@@ -235,7 +228,6 @@ export default function ProductCard({
           </a>
         </div>
 
-        {/* Availability Status */}
         {!product.isAvailable && (
           <div className="mt-2 text-center">
             <span className="text-red-600 text-xs font-medium">
