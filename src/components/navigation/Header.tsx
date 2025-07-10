@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { storage } from '@/utils/localStorage';
 
@@ -21,12 +22,16 @@ const formatNumber = (num: number) => {
 };
 
 export default function Header() {
+  const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState('all');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [totalSavings, setTotalSavings] = useState(0);
+  
+  // Hide search bar on search page to avoid redundancy
+  const isSearchPage = pathname === '/search';
 
   useEffect(() => {
     const clicks = storage.clickEvents.get();
@@ -42,7 +47,7 @@ export default function Header() {
         q: searchQuery.trim(),
         ...(selectedPlatform !== 'all' && { platform: selectedPlatform }),
       });
-      console.log(`/search?${params.toString()}`);
+      window.location.href = `/search?${params.toString()}`;
       setShowSuggestions(false);
     }
   };
@@ -179,92 +184,94 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Enhanced Search Bar */}
-        <div className="pb-6 relative">
-          <form onSubmit={handleSearch} className="flex space-x-3">
-            <div className="flex-1 relative">
-              <div className={`relative transition-all duration-300 ${isSearchFocused ? 'transform scale-105' : ''}`}>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={handleSearchFocus}
-                  onBlur={handleSearchBlur}
-                  placeholder="Search millions of products..."
-                  className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 focus:bg-white transition-all duration-300 text-lg placeholder-gray-400 shadow-sm"
-                />
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-              </div>
-              
-              {/* Search Suggestions */}
-              {showSuggestions && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
-                  <div className="p-4 border-b border-gray-100">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3">🔥 Trending Searches</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {trendingKeywords.map((keyword) => (
-                        <button
-                          key={keyword}
-                          onClick={() => selectTrendingKeyword(keyword)}
-                          className="px-3 py-2 bg-gray-100 hover:bg-blue-100 text-sm text-gray-700 hover:text-blue-700 rounded-full transition-all duration-200 hover:scale-105"
-                        >
-                          {keyword}
-                        </button>
-                      ))}
-                    </div>
+        {/* Enhanced Search Bar - Hidden on search page to avoid redundancy */}
+        {!isSearchPage && (
+          <div className="pb-6 relative">
+            <form onSubmit={handleSearch} className="flex space-x-3">
+              <div className="flex-1 relative">
+                <div className={`relative transition-all duration-300 ${isSearchFocused ? 'transform scale-105' : ''}`}>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={handleSearchFocus}
+                    onBlur={handleSearchBlur}
+                    placeholder="Search millions of products..."
+                    className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 focus:bg-white transition-all duration-300 text-lg placeholder-gray-400 shadow-sm"
+                  />
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                   </div>
                 </div>
-              )}
-            </div>
-            
-            {/* Platform Selector */}
-            <select
-              value={selectedPlatform}
-              onChange={(e) => setSelectedPlatform(e.target.value)}
-              className="hidden sm:block px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 focus:bg-white transition-all duration-300 font-medium"
-            >
-              <option value="all">🌟 All Platforms</option>
-              {platforms.map((platform) => (
-                <option key={platform.id} value={platform.id}>
-                  {platform.icon} {platform.name}
-                </option>
-              ))}
-            </select>
-            
-            {/* Search Button */}
-            <button
-              type="submit"
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2"
-            >
-              <span className="hidden sm:inline">Search</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-          </form>
-
-          {/* Platform Toggle Buttons - Mobile */}
-          <div className="mt-4 flex space-x-2 overflow-x-auto pb-2 sm:hidden">
-            {platforms.map((platform) => (
-              <button
-                key={platform.id}
-                onClick={() => setSelectedPlatform(platform.id)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
-                  selectedPlatform === platform.id
-                    ? `${platform.color} text-white shadow-lg`
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                
+                {/* Search Suggestions */}
+                {showSuggestions && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+                    <div className="p-4 border-b border-gray-100">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">🔥 Trending Searches</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {trendingKeywords.map((keyword) => (
+                          <button
+                            key={keyword}
+                            onClick={() => selectTrendingKeyword(keyword)}
+                            className="px-3 py-2 bg-gray-100 hover:bg-blue-100 text-sm text-gray-700 hover:text-blue-700 rounded-full transition-all duration-200 hover:scale-105"
+                          >
+                            {keyword}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Platform Selector */}
+              <select
+                value={selectedPlatform}
+                onChange={(e) => setSelectedPlatform(e.target.value)}
+                className="hidden sm:block px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 focus:bg-white transition-all duration-300 font-medium"
               >
-                <span>{platform.icon}</span>
-                <span>{platform.name}</span>
+                <option value="all">🌟 All Platforms</option>
+                {platforms.map((platform) => (
+                  <option key={platform.id} value={platform.id}>
+                    {platform.icon} {platform.name}
+                  </option>
+                ))}
+              </select>
+              
+              {/* Search Button */}
+              <button
+                type="submit"
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2"
+              >
+                <span className="hidden sm:inline">Search</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </button>
-            ))}
+            </form>
+
+            {/* Platform Toggle Buttons - Mobile */}
+            <div className="mt-4 flex space-x-2 overflow-x-auto pb-2 sm:hidden">
+              {platforms.map((platform) => (
+                <button
+                  key={platform.id}
+                  onClick={() => setSelectedPlatform(platform.id)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
+                    selectedPlatform === platform.id
+                      ? `${platform.color} text-white shadow-lg`
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <span>{platform.icon}</span>
+                  <span>{platform.name}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Enhanced Mobile Menu */}
