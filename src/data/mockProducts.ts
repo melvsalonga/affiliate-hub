@@ -264,7 +264,6 @@ export const mockProducts: Product[] = [
     },
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-09')
-  }
   },
   {
     id: 'lazada-3',
