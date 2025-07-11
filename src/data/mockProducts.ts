@@ -265,6 +265,106 @@ export const mockProducts: Product[] = [
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-09')
   }
+  },
+  {
+    id: 'lazada-3',
+    name: 'Panasonic 50" 4K Ultra HD Smart TV',
+    description: 'Experience stunning visuals with this 4K Smart TV featuring HDR and Dolby Vision',
+    price: 29990,
+    originalPrice: 34990,
+    currency: 'PHP',
+    imageUrl: 'https://images.unsplash.com/photo-1586250820429-bf6b23dfa247?w=400&q=80',
+    platform: {
+      id: 'lazada',
+      name: 'Lazada',
+      displayName: 'Lazada',
+      baseUrl: 'https://lazada.com.ph',
+      logoUrl: '/logos/lazada.png',
+      commission: 3,
+      currency: 'PHP'
+    },
+    affiliateUrl: 'https://lazada.com.ph/4k-smart-tv',
+    category: 'electronics',
+    brand: 'Panasonic',
+    rating: 4.6,
+    reviewCount: 543,
+    discount: 14,
+    isAvailable: true,
+    location: 'Metro Manila, Philippines',
+    shippingInfo: {
+      cost: 500,
+      estimatedDays: 5,
+      freeShippingMinimum: 2000
+    },
+    createdAt: new Date('2025-01-01'),
+    updatedAt: new Date('2025-01-09')
+  },
+  {
+    id: 'amazon-2',
+    name: 'Kindle Paperwhite 8GB Wi-Fi',
+    description: 'Read anywhere with this lightweight eBook reader featuring a high-resolution display',
+    price: 7990,
+    originalPrice: 8990,
+    currency: 'PHP',
+    imageUrl: 'https://images.unsplash.com/photo-1581300045641-8a8cafe19c2f?w=400&q=80',
+    platform: {
+      id: 'amazon',
+      name: 'Amazon',
+      displayName: 'Amazon',
+      baseUrl: 'https://amazon.com',
+      logoUrl: '/logos/amazon.png',
+      commission: 2,
+      currency: 'PHP'
+    },
+    affiliateUrl: 'https://amazon.com/kindle-paperwhite',
+    category: 'books',
+    brand: 'Amazon',
+    rating: 4.9,
+    reviewCount: 7621,
+    discount: 11,
+    isAvailable: true,
+    location: 'USA',
+    shippingInfo: {
+      cost: 250,
+      estimatedDays: 10,
+      freeShippingMinimum: 3000
+    },
+    createdAt: new Date('2025-01-01'),
+    updatedAt: new Date('2025-01-09')
+  },
+  {
+    id: 'aliexpress-2',
+    name: 'Wireless Noise Cancelling Headphones',
+    description: 'Enjoy your music with superior sound and noise cancellation',
+    price: 3495,
+    originalPrice: 5995,
+    currency: 'PHP',
+    imageUrl: 'https://images.unsplash.com/photo-1593642532400-2682810df593?w=400&q=80',
+    platform: {
+      id: 'aliexpress',
+      name: 'AliExpress',
+      displayName: 'AliExpress',
+      baseUrl: 'https://aliexpress.com',
+      logoUrl: '/logos/aliexpress.png',
+      commission: 6,
+      currency: 'PHP'
+    },
+    affiliateUrl: 'https://aliexpress.com/noise-cancelling-headphones',
+    category: 'electronics',
+    brand: 'Generic',
+    rating: 4.3,
+    reviewCount: 965,
+    discount: 42,
+    isAvailable: true,
+    location: 'Shenzhen, China',
+    shippingInfo: {
+      cost: 0,
+      estimatedDays: 14,
+      freeShippingMinimum: 1500
+    },
+    createdAt: new Date('2025-01-01'),
+    updatedAt: new Date('2025-01-09')
+  }
 ];
 
 export const featuredProducts = mockProducts.slice(0, 4);
