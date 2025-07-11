@@ -7,16 +7,37 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     
     // Extract query parameters
-    const query = searchParams.get('q')?.toLowerCase() || '';
-    const platform = searchParams.get('platform') || '';
-    const category = searchParams.get('category') || '';
-    const minPrice = searchParams.get('minPrice');
-    const maxPrice = searchParams.get('maxPrice');
-    const sortBy = searchParams.get('sortBy') || 'relevance';
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const offset = parseInt(searchParams.get('offset') || '0');
+  const query = searchParams.get('q')?.toLowerCase() || '';
+  const platform = searchParams.get('platform') || '';
+  const category = searchParams.get('category') || '';
+  const minPrice = searchParams.get('minPrice');
+  const maxPrice = searchParams.get('maxPrice');
+  const sortBy = searchParams.get('sortBy') || 'relevance';
+  const limit = parseInt(searchParams.get('limit') || '20');
+  const offset = parseInt(searchParams.get('offset') || '0');
 
-    let products: Product[] = [...mockProducts];
+  let products: Product[] = [];
+
+  // Placeholder for platform-specific API handling
+  switch (platform) {
+    case 'lazada':
+      products = mockProducts.filter(p => p.platform.id === 'lazada');
+      break;
+    case 'shopee':
+      products = mockProducts.filter(p => p.platform.id === 'shopee');
+      break;
+    case 'tiktok':
+      products = mockProducts.filter(p => p.platform.id === 'tiktok');
+      break;
+    case 'amazon':
+      products = mockProducts.filter(p => p.platform.id === 'amazon');
+      break;
+    case 'aliexpress':
+      products = mockProducts.filter(p => p.platform.id === 'aliexpress');
+      break;
+    default:
+      products = [...mockProducts];
+  }
 
     // Filter by search query
     if (query) {
