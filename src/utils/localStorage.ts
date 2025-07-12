@@ -311,4 +311,27 @@ export const storage = {
   clearAll: clearAllStorage,
 };
 
+// Helper functions for easier usage
+export const getUserFavorites = () => {
+  // This would normally fetch product data from API based on favorite IDs
+  // For now, return empty array as placeholder
+  return [];
+};
+
+export const getPriceAlerts = () => {
+  return priceAlertsStorage.get();
+};
+
+export const addPriceAlert = (alert: PriceAlert) => {
+  const alerts = priceAlertsStorage.get();
+  alerts.push(alert);
+  priceAlertsStorage.set(alerts);
+};
+
+export const removePriceAlert = (alertId: string) => {
+  const alerts = priceAlertsStorage.get();
+  const filtered = alerts.filter(alert => alert.id !== alertId);
+  priceAlertsStorage.set(filtered);
+};
+
 export default storage;
