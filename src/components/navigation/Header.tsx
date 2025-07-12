@@ -8,7 +8,7 @@ import { storage } from '@/utils/localStorage';
 const platforms = [
   { id: 'lazada', name: 'Lazada', color: 'bg-blue-600', icon: '🛍️' },
   { id: 'shopee', name: 'Shopee', color: 'bg-orange-600', icon: '🛒' },
-  { id: 'tiktok', name: 'TikTok Shop', color: 'bg-black', icon: '🎵' },
+  { id: 'tiktok', name: 'TikTok Shop', color: 'bg-gray-900', icon: '🎵' },
   { id: 'amazon', name: 'Amazon', color: 'bg-yellow-600', icon: '📦' },
   { id: 'aliexpress', name: 'AliExpress', color: 'bg-red-600', icon: '🚀' },
 ];

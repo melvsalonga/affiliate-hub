@@ -44,6 +44,7 @@
 - [ ] Create more comprehensive mock data
 - [ ] Create user account management pages
 - [ ] Set up basic analytics tracking
+- [ ] Implement dark mode/light mode toggle with theme persistence
 
 #### 📋 Next Tasks (Week 2):
 - [ ] Create main layout component with navigation

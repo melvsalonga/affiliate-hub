@@ -98,7 +98,7 @@ export default function FavoritesPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'price' | 'date')}
-                  className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white text-gray-900 border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="date">Date Added</option>
                   <option value="name">Name</option>

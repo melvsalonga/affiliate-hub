@@ -90,7 +90,9 @@
 - [x] Create API routes for categories and filters
 - [x] Implement platform-specific API routes (placeholders)
 - [x] Add favorites and price alerts functionality
+- [x] Fix UI visibility issues and improve design
 - [ ] Implement client-side caching strategies
+- [ ] Implement dark mode/light mode toggle with theme persistence
 
 ### Week 4: First Platform Integration
 - [ ] Research and implement Lazada API integration

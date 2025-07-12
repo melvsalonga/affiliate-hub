@@ -56,6 +56,70 @@ button {
   color: inherit;
 }
 
+/* Fix black/dark buttons with white text */
+.bg-black {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.bg-gray-900 {
+  background-color: #111827 !important;
+  color: #ffffff !important;
+}
+
+.bg-gray-800 {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+/* Fix text colors for dark backgrounds */
+.text-white {
+  color: #ffffff !important;
+}
+
+.text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.text-gray-500 {
+  color: #6b7280 !important;
+}
+
+.text-gray-600 {
+  color: #4b5563 !important;
+}
+
+.text-gray-700 {
+  color: #374151 !important;
+}
+
+.text-gray-900 {
+  color: #111827 !important;
+}
+
+/* Fix specific button types */
+button.bg-black,
+button.bg-gray-900,
+button.bg-gray-800,
+a.bg-black,
+a.bg-gray-900,
+a.bg-gray-800 {
+  color: #ffffff !important;
+}
+
+/* Fix links in dark backgrounds */
+footer a,
+.bg-gray-900 a,
+.bg-black a {
+  color: #9ca3af !important;
+}
+
+footer a:hover,
+.bg-gray-900 a:hover,
+.bg-black a:hover {
+  color: #ffffff !important;
+}
+
 /* Utility classes for better UI */
 .text-visible {
   color: #171717 !important;
@@ -67,4 +131,18 @@ button {
 
 .border-visible {
   border-color: #d1d5db !important;
+}
+
+/* Fix any remaining dark mode issues */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure proper contrast for all interactive elements */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 2px !important;
 }

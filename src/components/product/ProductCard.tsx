@@ -80,7 +80,7 @@ export default function ProductCard({
     const colors = {
       lazada: 'bg-blue-600',
       shopee: 'bg-orange-600',
-      tiktok: 'bg-black',
+      tiktok: 'bg-gray-900',
       amazon: 'bg-yellow-600',
       aliexpress: 'bg-red-600',
     };
