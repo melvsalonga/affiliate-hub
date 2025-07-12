@@ -313,8 +313,17 @@ export const storage = {
 
 // Helper functions for easier usage
 export const getUserFavorites = () => {
-  // This would normally fetch product data from API based on favorite IDs
-  // For now, return empty array as placeholder
+  // Get favorite product IDs from localStorage
+  const favoriteIds = userFavoritesStorage.get().map(fav => fav.productId);
+  
+  // Import mock products here to avoid circular dependency
+  if (typeof window !== 'undefined') {
+    // This is a temporary solution - in production, you'd fetch from API
+    // For now, we'll use a global reference to mock products
+    const mockProducts = (window as any).__MOCK_PRODUCTS__ || [];
+    return mockProducts.filter((product: any) => favoriteIds.includes(product.id));
+  }
+  
   return [];
 };
 

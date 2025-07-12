@@ -9,13 +9,15 @@ interface ProductCardProps {
   showPlatform?: boolean;
   showDescription?: boolean;
   className?: string;
+  onFavoriteRemove?: () => void;
 }
 
 export default function ProductCard({
   product,
   showPlatform = true,
   showDescription = false,
-  className = ''
+  className = '',
+  onFavoriteRemove
 }: ProductCardProps) {
   const [isFavorite, setIsFavorite] = useState(
     storage.userFavorites.isFavorite(product.id)
@@ -30,6 +32,9 @@ export default function ProductCard({
 
     if (isFavorite) {
       storage.userFavorites.remove(product.id);
+      if (onFavoriteRemove) {
+        onFavoriteRemove();
+      }
     } else {
       storage.userFavorites.add(product.id);
     }
