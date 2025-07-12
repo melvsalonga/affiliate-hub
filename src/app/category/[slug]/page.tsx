@@ -231,7 +231,7 @@ export default function CategoryPage() {
               <select
                 value={selectedPlatform}
                 onChange={(e) => setSelectedPlatform(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                className="px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
               >
                 {platforms.map(platform => (
                   <option key={platform.id} value={platform.id}>
@@ -247,7 +247,7 @@ export default function CategoryPage() {
               <select
                 value={selectedSort}
                 onChange={(e) => setSelectedSort(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                className="px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
               >
                 {sortOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -265,7 +265,7 @@ export default function CategoryPage() {
                   const [min, max] = e.target.value.split('-').map(Number);
                   setPriceRange({ min, max: max || 100000 });
                 }}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                className="px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
               >
                 <option value="0-100000">All Prices</option>
                 <option value="0-1000">₱0 - ₱1,000</option>
