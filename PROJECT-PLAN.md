@@ -49,13 +49,12 @@
 - **Analytics:** Google Analytics 4
 - **Search:** API-based search
 
-### API Integrations:
-- **Lazada Open Platform API**
-- **Shopee Open Platform API**
-- **TikTok Shop API**
-- **Amazon Product Advertising API**
-- **AliExpress API**
-- **Web scraping** (for platforms without APIs)
+### Current Limitations & Approach:
+- **API Access Limitation:** Platform APIs require business registration (DTI, BIR) which is not available yet
+- **Current Focus:** Affiliate link management and manual product showcase automation
+- **Future Integration:** APIs will be integrated once business registration is complete
+- **Immediate Solution:** Manual product addition with affiliate link automation
+- **Web scraping:** For basic product information (respecting robots.txt and rate limits)
 
 ## 📋 Project Phases
 
@@ -94,49 +93,67 @@
 - [ ] Implement client-side caching strategies
 - [ ] Implement dark mode/light mode toggle with theme persistence
 
-### Week 4: First Platform Integration
-- [ ] Research and implement Lazada API integration
-- [ ] Create product import system
-- [ ] Set up affiliate link generation
-- [ ] Implement price tracking functionality
+### Week 4: Affiliate Link Management & Manual Product Automation
+- [ ] Create affiliate link management system
+- [ ] Build manual product addition interface
+- [ ] Set up affiliate link generation and tracking
+- [ ] Create product showcase automation tools
+- [ ] Implement image upload and management
 - [ ] Create admin dashboard for product management
 - [ ] Add basic analytics tracking
-- [ ] Test and debug platform integration
+- [ ] Test affiliate link functionality
 
-## Phase 2: Multi-Platform Integration (Weeks 5-8)
-**Goal:** Integrate multiple affiliate platforms
+#### Automation Strategy (Current Constraints):
+**Problem:** API access requires business registration (DTI/BIR)
+**Solution:** Focus on automating the manual processes:
 
-### Week 5: Shopee Integration
-- [ ] Integrate Shopee API
-- [ ] Standardize product data structure
-- [ ] Create platform-specific adapters
-- [ ] Implement cross-platform product comparison
-- [ ] Add platform badges and indicators
-- [ ] Update database schema for multi-platform support
+1. **Affiliate Link Collection Automation:**
+   - Create a centralized link management system
+   - Build tools to quickly format and organize affiliate links
+   - Implement link validation and testing
+   - Create templates for different platform link structures
 
-### Week 6: TikTok Shop Integration
-- [ ] Integrate TikTok Shop API
-- [ ] Handle video content and social features
-- [ ] Create TikTok-specific product displays
-- [ ] Implement viral product tracking
-- [ ] Add social sharing features
-- [ ] Create trending products section
+2. **Manual Product Showcase Automation:**
+   - Build quick product addition forms with templates
+   - Create image upload and processing tools
+   - Implement batch operations for multiple products
+   - Add product information auto-completion where possible
+   - Create product showcase templates for consistent formatting
 
-### Week 7: Amazon & AliExpress Integration
-- [ ] Integrate Amazon Product Advertising API
-- [ ] Add AliExpress API integration
-- [ ] Create international shipping calculators
-- [ ] Implement currency conversion
-- [ ] Add product availability tracking
-- [ ] Create global vs local product filters
+## Phase 2: Manual Product Management & Automation (Weeks 5-8)
+**Goal:** Build efficient manual product management while preparing for future API integration
 
-### Week 8: Web Scraping & Backup Systems
-- [ ] Implement web scraping for platforms without APIs
-- [ ] Create fallback systems for API failures
-- [ ] Set up automated data refresh jobs
-- [ ] Implement rate limiting and respect robots.txt
-- [ ] Add proxy rotation for scraping
-- [ ] Create monitoring and alerting system
+### Week 5: Enhanced Manual Product Management
+- [ ] Create bulk product import via CSV/Excel
+- [ ] Build product template system for consistent formatting
+- [ ] Implement image batch upload and processing
+- [ ] Create product category management system
+- [ ] Add product status tracking (active/inactive/pending)
+- [ ] Implement product scheduling (publish later)
+
+### Week 6: Affiliate Link Automation & Tracking
+- [ ] Create affiliate link generator for all platforms
+- [ ] Implement link click tracking and analytics
+- [ ] Build commission tracking system
+- [ ] Add link performance monitoring
+- [ ] Create link rotation and A/B testing
+- [ ] Implement link shortening service
+
+### Week 7: Web Scraping for Product Information
+- [ ] Implement basic web scraping for product details
+- [ ] Create product information auto-fill system
+- [ ] Add price monitoring via scraping
+- [ ] Implement stock availability checking
+- [ ] Create product update automation
+- [ ] Add rate limiting and respect robots.txt
+
+### Week 8: Business Registration Preparation & Future API Planning
+- [ ] Prepare documentation for business registration
+- [ ] Create API integration architecture (ready for DTI/BIR)
+- [ ] Build platform-specific data adapters
+- [ ] Implement feature flags for future API activation
+- [ ] Create API credential management system
+- [ ] Document API integration roadmap
 
 ## Phase 3: User Experience & Features (Weeks 9-12)
 **Goal:** Enhance user experience and add advanced features
