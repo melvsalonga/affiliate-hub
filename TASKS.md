@@ -40,11 +40,18 @@
 - [x] Create PlatformService for managing multiple platform integrations
 - [x] Add platform status monitoring API
 
-#### 🚧 Current Tasks:
-- [ ] Create more comprehensive mock data
-- [ ] Create user account management pages
-- [ ] Set up basic analytics tracking
+#### 🚧 Current Tasks (Week 3 - Final items):
+- [ ] Implement client-side caching strategies
 - [ ] Implement dark mode/light mode toggle with theme persistence
+
+#### 📋 Next Tasks (Week 4 - First Platform Integration):
+- [ ] Research and implement Lazada API integration
+- [ ] Create product import system
+- [ ] Set up affiliate link generation
+- [ ] Implement price tracking functionality
+- [ ] Create admin dashboard for product management
+- [ ] Add basic analytics tracking
+- [ ] Test and debug platform integration
 
 #### 📋 Next Tasks (Week 2):
 - [ ] Create main layout component with navigation
