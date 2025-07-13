@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import ProductGrid from '@/components/product/ProductGrid';
+import Loading from '@/components/ui/Loading';
 import { mockProducts } from '@/data/mockProducts';
 import { Product } from '@/types/product';
 import { storage } from '@/utils/localStorage';
-import Loading from '@/components/ui/Loading';
-import ProductCard from '@/components/product/ProductCard';
+import { cacheService } from '@/services/cacheService';
 
 export default function ProductDetailPage() {
   const params = useParams();
