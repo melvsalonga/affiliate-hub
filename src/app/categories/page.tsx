@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { mockProducts } from '@/data/mockProducts';
 import { Product } from '@/types/product';
+import { cacheService } from '@/services/cacheService';
 
 const categoryInfo = {
   electronics: {

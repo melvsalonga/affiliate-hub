@@ -7,6 +7,7 @@ import Loading from '@/components/ui/Loading';
 import { mockProducts } from '@/data/mockProducts';
 import { Product } from '@/types/product';
 import { storage } from '@/utils/localStorage';
+import { cacheService } from '@/services/cacheService';
 
 const platforms = [
   { id: 'all', name: 'All Platforms' },
@@ -46,8 +47,20 @@ function SearchContent() {
       storage.searchHistory.add(query);
     }
     
-    // Simulate API call
+    // Check cache first
+    const cachedResults = cacheService.getSearchResults(query, platform);
+    if (cachedResults) {
+      console.log('Using cached search results');
+      setProducts(cachedResults);
+      setLoading(false);
+      return;
+    }
+    
+    // Simulate API call if not cached
     setTimeout(() => {
+      console.log('Fetching fresh search results');
+      // Cache the results for future use
+      cacheService.setSearchResults(query, platform, mockProducts);
       setProducts(mockProducts);
       setLoading(false);
     }, 500);
