@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { storage } from '@/utils/localStorage';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 const platforms = [
   { id: 'lazada', name: 'Lazada', color: 'bg-blue-600', icon: '🛍️' },
@@ -142,6 +143,7 @@ export default function Header() {
 
             {/* User Actions */}
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <Link 
                 href="/alerts" 
                 className="relative p-2 text-gray-700 hover:text-blue-600 transition-all duration-200 hover:bg-blue-50 rounded-lg group"
