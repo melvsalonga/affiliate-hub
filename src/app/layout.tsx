@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
 import MockProductsProvider from '@/components/providers/MockProductsProvider';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,13 +31,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MockProductsProvider>
-          <Header />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <Footer />
-        </MockProductsProvider>
+        <ThemeProvider>
+          <MockProductsProvider>
+            <Header />
+            <main className="min-h-screen">
+              {children}
+            </main>
+            <Footer />
+          </MockProductsProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
