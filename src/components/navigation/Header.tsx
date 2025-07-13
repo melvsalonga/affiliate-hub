@@ -68,8 +68,13 @@ export default function Header() {
     setShowSuggestions(false);
   };
 
-  const favoriteCount = storage.userFavorites.get().length;
-  const alertCount = storage.priceAlerts.get().filter(alert => alert.isActive).length;
+  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [alertCount, setAlertCount] = useState(0);
+
+  useEffect(() => {
+    setFavoriteCount(storage.userFavorites.get().length);
+    setAlertCount(storage.priceAlerts.get().filter(alert => alert.isActive).length);
+  }, []);
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-200 backdrop-blur-lg">

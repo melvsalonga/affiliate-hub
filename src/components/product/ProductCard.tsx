@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/types/product';
@@ -19,12 +19,13 @@ export default function ProductCard({
   className = '',
   onFavoriteRemove
 }: ProductCardProps) {
-  const [isFavorite, setIsFavorite] = useState(
-    storage.userFavorites.isFavorite(product.id)
-  );
-  const [hasAlert, setHasAlert] = useState(
-    storage.priceAlerts.hasAlert(product.id)
-  );
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [hasAlert, setHasAlert] = useState(false);
+
+  useEffect(() => {
+    setIsFavorite(storage.userFavorites.isFavorite(product.id));
+    setHasAlert(storage.priceAlerts.hasAlert(product.id));
+  }, [product.id]);
 
   const handleFavoriteToggle = (e: React.MouseEvent) => {
     e.preventDefault();

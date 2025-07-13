@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import ProductGrid from '@/components/product/ProductGrid';
+import ProductCard from '@/components/product/ProductCard';
 import Loading from '@/components/ui/Loading';
 import { mockProducts } from '@/data/mockProducts';
 import { Product } from '@/types/product';
