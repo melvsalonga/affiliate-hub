@@ -42,7 +42,7 @@
 
 #### 🚧 Current Tasks (Week 3 - Final items):
 - [x] Implement client-side caching strategies
-- [ ] Implement dark mode/light mode toggle with theme persistence
+- [ ] Implement dark mode/light mode toggle with theme persistence (optional post-project)
 
 #### 📋 Next Tasks (Week 4 - First Platform Integration):
 - [ ] Research and implement Lazada API integration

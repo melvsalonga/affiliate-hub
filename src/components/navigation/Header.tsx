@@ -72,7 +72,7 @@ export default function Header() {
   const alertCount = storage.priceAlerts.get().filter(alert => alert.isActive).length;
 
   return (
-    <header className="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-100">
+    <header className="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-200 backdrop-blur-lg">
       {/* Top Bar with Trust Indicators */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -146,7 +146,7 @@ export default function Header() {
               <ThemeToggle />
               <Link 
                 href="/alerts" 
-                className="relative p-2 text-gray-700 hover:text-blue-600 transition-all duration-200 hover:bg-blue-50 rounded-lg group"
+                className="relative p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg group"
                 title="Price Alerts"
               >
                 <div className="text-xl">🔔</div>
@@ -158,7 +158,7 @@ export default function Header() {
               </Link>
               <Link 
                 href="/account" 
-                className="p-2 text-gray-700 hover:text-green-600 transition-all duration-200 hover:bg-green-50 rounded-lg"
+                className="p-2 text-gray-700 dark:text-gray-300 hover:text-green-600 transition-all duration-200 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg"
                 title="My Account"
               >
                 <div className="text-xl">👤</div>
@@ -169,7 +169,7 @@ export default function Header() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-2 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+            className="lg:hidden p-2 rounded-xl text-gray-700 dark:text-gray-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
           >
             <span className="sr-only">Open menu</span>
             <div className="w-6 h-6">
@@ -199,7 +199,7 @@ export default function Header() {
                     onFocus={handleSearchFocus}
                     onBlur={handleSearchBlur}
                     placeholder="Search millions of products..."
-                    className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 focus:bg-white transition-all duration-300 text-lg placeholder-gray-400 shadow-sm"
+                    className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-700 transition-all duration-300 text-lg placeholder-gray-400 dark:placeholder-gray-500 shadow-sm dark:text-white"
                   />
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,15 +210,15 @@ export default function Header() {
                 
                 {/* Search Suggestions */}
                 {showSuggestions && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden">
                     <div className="p-4 border-b border-gray-100">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3">🔥 Trending Searches</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">🔥 Trending Searches</h4>
                       <div className="flex flex-wrap gap-2">
                         {trendingKeywords.map((keyword) => (
                           <button
                             key={keyword}
                             onClick={() => selectTrendingKeyword(keyword)}
-                            className="px-3 py-2 bg-gray-100 hover:bg-blue-100 text-sm text-gray-700 hover:text-blue-700 rounded-full transition-all duration-200 hover:scale-105"
+                            className="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-800 text-sm text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-300 rounded-full transition-all duration-200 hover:scale-105"
                           >
                             {keyword}
                           </button>
@@ -278,11 +278,11 @@ export default function Header() {
 
       {/* Enhanced Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
+        <div className="lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
           <div className="px-4 pt-4 pb-6 space-y-2">
             <Link 
               href="/" 
-              className="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium"
+              className="flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all duration-200 font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               <span className="mr-3">🏠</span>
@@ -290,7 +290,7 @@ export default function Header() {
             </Link>
             <Link 
               href="/deals" 
-              className="flex items-center px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all duration-200 font-medium"
+              className="flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-xl transition-all duration-200 font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               <span className="mr-3">🔥</span>
@@ -298,7 +298,7 @@ export default function Header() {
             </Link>
             <Link 
               href="/categories" 
-              className="flex items-center px-4 py-3 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 font-medium"
+              className="flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-all duration-200 font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               <span className="mr-3">📱</span>
@@ -306,7 +306,7 @@ export default function Header() {
             </Link>
             <Link 
               href="/favorites" 
-              className="flex items-center justify-between px-4 py-3 text-gray-700 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-all duration-200 font-medium"
+              className="flex items-center justify-between px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-xl transition-all duration-200 font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               <div className="flex items-center">
@@ -321,7 +321,7 @@ export default function Header() {
             </Link>
             <Link 
               href="/alerts" 
-              className="flex items-center justify-between px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium"
+              className="flex items-center justify-between px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all duration-200 font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               <div className="flex items-center">
@@ -336,7 +336,7 @@ export default function Header() {
             </Link>
             <Link 
               href="/account" 
-              className="flex items-center px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all duration-200 font-medium"
+              className="flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-xl transition-all duration-200 font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               <span className="mr-3">👤</span>
