@@ -127,17 +127,20 @@ class AffiliateService {
 
   private loadLinksFromStorage() {
     try {
-      const stored = localStorage.getItem('affiliate_links');
-      if (stored) {
-        const linksData = JSON.parse(stored);
-        linksData.forEach((link: any) => {
-          this.links.set(link.id, {
-            ...link,
-            createdAt: new Date(link.createdAt),
-            updatedAt: new Date(link.updatedAt),
-            expiresAt: link.expiresAt ? new Date(link.expiresAt) : undefined
+      // Only run on client side
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stored = localStorage.getItem('affiliate_links');
+        if (stored) {
+          const linksData = JSON.parse(stored);
+          linksData.forEach((link: any) => {
+            this.links.set(link.id, {
+              ...link,
+              createdAt: new Date(link.createdAt),
+              updatedAt: new Date(link.updatedAt),
+              expiresAt: link.expiresAt ? new Date(link.expiresAt) : undefined
+            });
           });
-        });
+        }
       }
     } catch (error) {
       console.error('Error loading affiliate links from storage:', error);
@@ -146,8 +149,11 @@ class AffiliateService {
 
   private saveLinksToStorage() {
     try {
-      const linksArray = Array.from(this.links.values());
-      localStorage.setItem('affiliate_links', JSON.stringify(linksArray));
+      // Only run on client side
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const linksArray = Array.from(this.links.values());
+        localStorage.setItem('affiliate_links', JSON.stringify(linksArray));
+      }
     } catch (error) {
       console.error('Error saving affiliate links to storage:', error);
     }

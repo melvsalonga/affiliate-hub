@@ -144,6 +144,10 @@ export default function Header() {
                 )}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-pink-600 group-hover:w-full transition-all duration-300"></span>
               </Link>
+              <Link href="/admin" className="text-gray-700 hover:text-indigo-600 transition-all duration-200 font-medium relative group flex items-center">
+                Admin
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-300"></span>
+              </Link>
             </nav>
 
             {/* User Actions */}
