@@ -1,3 +1,13 @@
+-- Create admin_users table
+CREATE TABLE IF NOT EXISTS admin_users (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    role VARCHAR(20) NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'super_admin')),
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    last_login_at TIMESTAMP WITH TIME ZONE
+);
+
 -- Create affiliate_links table
 CREATE TABLE IF NOT EXISTS affiliate_links (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
