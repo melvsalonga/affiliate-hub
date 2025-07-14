@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockProducts } from '@/data/mockProducts';
+import { productAffiliateService } from '@/services/productAffiliateService';
 import { Product } from '@/types/product';
 
 export async function GET(request: NextRequest) {
@@ -16,27 +16,12 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '20');
   const offset = parseInt(searchParams.get('offset') || '0');
 
-  let products: Product[] = [];
+  // Get all affiliate products
+  let products = productAffiliateService.getAffiliateProducts();
 
-  // Placeholder for platform-specific API handling
-  switch (platform) {
-    case 'lazada':
-      products = mockProducts.filter(p => p.platform.id === 'lazada');
-      break;
-    case 'shopee':
-      products = mockProducts.filter(p => p.platform.id === 'shopee');
-      break;
-    case 'tiktok':
-      products = mockProducts.filter(p => p.platform.id === 'tiktok');
-      break;
-    case 'amazon':
-      products = mockProducts.filter(p => p.platform.id === 'amazon');
-      break;
-    case 'aliexpress':
-      products = mockProducts.filter(p => p.platform.id === 'aliexpress');
-      break;
-    default:
-      products = [...mockProducts];
+  // Filter by platform if specified
+  if (platform && platform !== 'all') {
+    products = products.filter(p => p.platform.id === platform);
   }
 
     // Filter by search query
@@ -44,14 +29,9 @@ export async function GET(request: NextRequest) {
       products = products.filter(product =>
         product.name.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query) ||
-        product.brand.toLowerCase().includes(query) ||
+        (product.brand && product.brand.toLowerCase().includes(query)) ||
         product.category.toLowerCase().includes(query)
       );
-    }
-
-    // Filter by platform
-    if (platform && platform !== 'all') {
-      products = products.filter(product => product.platform.id === platform);
     }
 
     // Filter by category

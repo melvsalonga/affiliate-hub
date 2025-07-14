@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockProducts } from '@/data/mockProducts';
+import { productAffiliateService } from '@/services/productAffiliateService';
 
 export async function GET(
   request: NextRequest,
@@ -9,7 +9,8 @@ export async function GET(
     const { id } = params;
 
     // Find the product by ID
-    const product = mockProducts.find(p => p.id === id);
+    const allProducts = productAffiliateService.getAffiliateProducts();
+    const product = allProducts.find(p => p.id === id);
 
     if (!product) {
       return NextResponse.json(
@@ -23,12 +24,12 @@ export async function GET(
     }
 
     // Get related products (same category, different products)
-    const relatedProducts = mockProducts
+    const relatedProducts = allProducts
       .filter(p => p.category === product.category && p.id !== product.id)
       .slice(0, 4);
 
     // Get similar products from same platform
-    const similarProducts = mockProducts
+    const similarProducts = allProducts
       .filter(p => p.platform.id === product.platform.id && p.id !== product.id)
       .slice(0, 4);
 

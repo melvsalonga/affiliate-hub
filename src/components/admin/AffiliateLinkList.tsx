@@ -8,9 +8,10 @@ interface AffiliateLinkListProps {
   onEdit: (link: AffiliateLink) => void;
   onDelete: (linkId: string) => void;
   onRefresh: () => void;
+  onCreateProduct: (link: AffiliateLink) => void;
 }
 
-export function AffiliateLinkList({ links, onEdit, onDelete, onRefresh }: AffiliateLinkListProps) {
+export function AffiliateLinkList({ links, onEdit, onDelete, onRefresh, onCreateProduct }: AffiliateLinkListProps) {
   const [filter, setFilter] = useState({
     platform: '',
     isActive: '',
@@ -273,6 +274,13 @@ export function AffiliateLinkList({ links, onEdit, onDelete, onRefresh }: Affili
                       title="Copy affiliate link"
                     >
                       Copy
+                    </button>
+                    <button
+                      onClick={() => onCreateProduct(link)}
+                      className="text-green-600 hover:text-green-900"
+                      title="Create product from this link"
+                    >
+                      + Product
                     </button>
                     <button
                       onClick={() => onEdit(link)}

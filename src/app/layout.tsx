@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/navigation/Header';
 import Footer from '@/components/navigation/Footer';
-import MockProductsProvider from '@/components/providers/MockProductsProvider';
+import AffiliateProductsProvider from '@/components/providers/MockProductsProvider';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 
 const geistSans = Geist({
@@ -32,13 +32,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
       >
         <ThemeProvider>
-          <MockProductsProvider>
+          <AffiliateProductsProvider>
             <Header />
             <main className="min-h-screen">
               {children}
             </main>
             <Footer />
-          </MockProductsProvider>
+          </AffiliateProductsProvider>
         </ThemeProvider>
       </body>
     </html>

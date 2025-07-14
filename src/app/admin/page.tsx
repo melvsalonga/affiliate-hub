@@ -5,12 +5,15 @@ import { AffiliateLink } from '@/types/affiliate';
 import { AffiliateLinkForm } from '@/components/admin/AffiliateLinkForm';
 import { AffiliateLinkList } from '@/components/admin/AffiliateLinkList';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { ProductFromLinkForm } from '@/components/admin/ProductFromLinkForm';
+import { Product } from '@/types/product';
 
 export default function AdminDashboard() {
   const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'links' | 'analytics' | 'add-link'>('links');
   const [selectedLink, setSelectedLink] = useState<AffiliateLink | null>(null);
+  const [selectedLinkForProduct, setSelectedLinkForProduct] = useState<AffiliateLink | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch affiliate links on component mount
@@ -56,6 +59,20 @@ export default function AdminDashboard() {
   const handleEditLink = (link: AffiliateLink) => {
     setSelectedLink(link);
     setActiveTab('add-link');
+  };
+
+  const handleCreateProduct = (link: AffiliateLink) => {
+    setSelectedLinkForProduct(link);
+  };
+
+  const handleProductCreated = (product: Product) => {
+    setSelectedLinkForProduct(null);
+    // Show success message or refresh products if needed
+    alert(`Product "${product.name}" created successfully!`);
+  };
+
+  const handleCancelProductCreation = () => {
+    setSelectedLinkForProduct(null);
   };
 
   const tabs = [
@@ -121,6 +138,7 @@ export default function AdminDashboard() {
                   if (tab.id !== 'add-link') {
                     setSelectedLink(null);
                   }
+                  setSelectedLinkForProduct(null); // Reset product creation state
                 }}
                 className={`flex items-center px-1 py-4 text-sm font-medium border-b-2 ${
                   activeTab === tab.id
@@ -151,6 +169,7 @@ export default function AdminDashboard() {
               onEdit={handleEditLink}
               onDelete={handleLinkDeleted}
               onRefresh={fetchAffiliateLinks}
+              onCreateProduct={handleCreateProduct}
             />
           )}
 
@@ -170,6 +189,15 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Product Creation Modal */}
+      {selectedLinkForProduct && (
+        <ProductFromLinkForm
+          affiliateLink={selectedLinkForProduct}
+          onProductCreated={handleProductCreated}
+          onCancel={handleCancelProductCreation}
+        />
+      )}
     </div>
   );
 }
