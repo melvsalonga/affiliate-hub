@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { affiliateService } from '@/services/affiliateService';
+import { supabaseAffiliateService } from '@/services/supabaseAffiliateService';
 import { LinkGenerationRequest } from '@/types/affiliate';
 
 // GET /api/affiliate/links - Get all affiliate links
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     if (isActive !== null) filter.isActive = isActive === 'true';
     if (tags) filter.tags = tags.split(',');
 
-    const links = affiliateService.getAllAffiliateLinks(filter);
+const links = await supabaseAffiliateService.getAllAffiliateLinks(filter);
 
     return NextResponse.json({
       success: true,
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const result = await affiliateService.generateAffiliateLink(body);
+const result = await supabaseAffiliateService.generateAffiliateLink(body);
 
     if (result.success) {
       return NextResponse.json({
@@ -78,7 +78,7 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const result = await affiliateService.updateAffiliateLink(id, updates);
+const result = await supabaseAffiliateService.updateAffiliateLink(id, updates);
 
     if (result.success) {
       return NextResponse.json({
@@ -113,7 +113,7 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const result = await affiliateService.deleteAffiliateLink(id);
+const result = await supabaseAffiliateService.deleteAffiliateLink(id);
 
     if (result.success) {
       return NextResponse.json({
