@@ -4,9 +4,14 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import ProductGrid from '@/components/product/ProductGrid';
-import { featuredProducts, trendingProducts, dealsProducts } from '@/data/mockProducts';
+import { productUtils } from '@/utils/productUtils';
 
-const heroProducts = featuredProducts.slice(0, 5);
+const getHeroProducts = () => {
+  if (typeof window !== 'undefined') {
+    return productUtils.getAllProducts().slice(0, 5);
+  }
+  return [];
+};
 const platforms = [
   { id: 'lazada', name: 'Lazada', logo: '🛍️', color: 'text-blue-600' },
   { id: 'shopee', name: 'Shopee', logo: '🛒', color: 'text-orange-600' },
@@ -30,14 +35,30 @@ export default function Home() {
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+  const [heroProducts, setHeroProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [trendingProducts, setTrendingProducts] = useState([]);
+  const [dealsProducts, setDealsProducts] = useState([]);
 
   useEffect(() => {
+    // Load products from localStorage + mock data
+    const allProducts = getHeroProducts();
+    setHeroProducts(allProducts.slice(0, 5));
+    setFeaturedProducts(allProducts.slice(0, 8));
+    setTrendingProducts(allProducts.slice(2, 10));
+    setDealsProducts(allProducts.slice(1, 9));
+    
     setIsVisible(true);
-    const interval = setInterval(() => {
-      setCurrentProductIndex((prev) => (prev + 1) % heroProducts.length);
-    }, 3000);
-    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (heroProducts.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentProductIndex((prev) => (prev + 1) % heroProducts.length);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [heroProducts.length]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
