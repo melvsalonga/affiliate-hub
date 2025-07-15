@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { AffiliateLink } from '@/types/affiliate';
-import { AffiliateLinkForm } from '@/components/admin/AffiliateLinkForm';
-import { AffiliateLinkList } from '@/components/admin/AffiliateLinkList';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
-import { ProductFromLinkForm } from '@/components/admin/ProductFromLinkForm';
 import { ManualProductAddition } from '@/components/admin/ManualProductAddition';
+import { ProductList } from '@/components/admin/ProductList';
 import { Product } from '@/types/product';
 
 export default function AdminDashboard() {
@@ -88,39 +86,25 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLinkCreated = (newLink: AffiliateLink) => {
-    setAffiliateLinks(prev => [newLink, ...prev]);
-    setActiveTab('links');
-  };
-
-  const handleLinkUpdated = (updatedLink: AffiliateLink) => {
-    setAffiliateLinks(prev => 
-      prev.map(link => link.id === updatedLink.id ? updatedLink : link)
-    );
-    setSelectedLink(null);
-  };
-
-  const handleLinkDeleted = (linkId: string) => {
-    setAffiliateLinks(prev => prev.filter(link => link.id !== linkId));
-  };
-
-  const handleEditLink = (link: AffiliateLink) => {
-    setSelectedLink(link);
-    setActiveTab('add-link');
-  };
-
-  const handleCreateProduct = (link: AffiliateLink) => {
-    setSelectedLinkForProduct(link);
-  };
-
   const handleProductCreated = (product: Product) => {
-    setSelectedLinkForProduct(null);
-    // Show success message or refresh products if needed
+    setProducts(prev => [product, ...prev]);
+    setActiveTab('products');
+    // Show success message
     alert(`Product "${product.name}" created successfully!`);
   };
 
-  const handleCancelProductCreation = () => {
-    setSelectedLinkForProduct(null);
+  const handleProductEdit = (product: Product) => {
+    setSelectedProduct(product);
+    setActiveTab('add-product');
+  };
+
+  const handleProductDeleted = (productId: string) => {
+    setProducts(prev => prev.filter(product => product.id !== productId));
+  };
+
+  const handleRefreshProducts = () => {
+    // TODO: Implement product refresh when we connect to backend
+    console.log('Refreshing products...');
   };
 
   const tabs = [
