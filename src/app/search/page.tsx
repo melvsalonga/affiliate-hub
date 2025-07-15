@@ -59,9 +59,13 @@ function SearchContent() {
     // Simulate API call if not cached
     setTimeout(() => {
       console.log('Fetching fresh search results');
+      // Get products from admin + mock data
+      const allProducts = productUtils.getAllProducts();
+      const searchResults = query ? productUtils.searchProducts(query) : allProducts;
+      
       // Cache the results for future use
-      cacheService.setSearchResults(query, platform, mockProducts);
-      setProducts(mockProducts);
+      cacheService.setSearchResults(query, platform, searchResults);
+      setProducts(searchResults);
       setLoading(false);
     }, 500);
   }, [searchParams]);
