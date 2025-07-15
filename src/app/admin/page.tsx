@@ -248,6 +248,8 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 }
