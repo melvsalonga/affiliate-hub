@@ -90,9 +90,7 @@ export function ManualProductAddition({ onProductAdded, onCancel }: ManualProduc
         throw new Error('Affiliate URL is required');
       }
 
-      // TEMPORARY: Create mock product for testing without database
-      // TODO: Re-enable service call when Supabase is configured
-      
+      // Create product with localStorage persistence
       const product = {
         id: `manual_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: formData.name,
@@ -103,10 +101,10 @@ export function ManualProductAddition({ onProductAdded, onCancel }: ManualProduc
         imageUrl: formData.imageUrl,
         platform: {
           id: formData.platform,
-          name: formData.platform,
-          displayName: formData.platform,
-          baseUrl: '',
-          logoUrl: '',
+          name: formData.platform === 'manual' ? 'Manual Entry' : formData.platform,
+          displayName: formData.platform === 'manual' ? 'Manual Entry' : formData.platform,
+          baseUrl: getPlatformBaseUrl(formData.platform),
+          logoUrl: `/logos/${formData.platform}.png`,
           commission: 0.05,
           currency: 'PHP'
         },
@@ -128,13 +126,15 @@ export function ManualProductAddition({ onProductAdded, onCancel }: ManualProduc
         updatedAt: new Date()
       };
       
+      // Save to localStorage for persistence and sharing with frontend
+      const existingProducts = JSON.parse(localStorage.getItem('admin_products') || '[]');
+      const updatedProducts = [product, ...existingProducts];
+      localStorage.setItem('admin_products', JSON.stringify(updatedProducts));
+      
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       onProductAdded(product);
-      
-      // const product = await productAffiliateService.createManualProduct(formData);
-      // onProductAdded(product);
       
       // Reset form
       setFormData({
