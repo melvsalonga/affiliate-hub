@@ -24,8 +24,8 @@
 - **User Side:** Browse products → Click "Buy Now" → Redirect to affiliate link
 
 **📝 IMMEDIATE TASKS:**
-- [ ] Refactor admin dashboard (remove redundant "Add Link" tab)
-- [ ] Create "Manage Products" tab (view, edit, delete products)
+- [x] Refactor admin dashboard (remove redundant "Add Link" tab)
+- [x] Create "Manage Products" tab (view, edit, delete products)
 - [ ] Connect admin products to main showcase (homepage)
 - [ ] Implement "Buy Now" → affiliate link redirection
 - [ ] Create product showcase automation tools

@@ -216,14 +216,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Product Creation Modal */}
-      {selectedLinkForProduct && (
-        <ProductFromLinkForm
-          affiliateLink={selectedLinkForProduct}
-          onProductCreated={handleProductCreated}
-          onCancel={handleCancelProductCreation}
-        />
-      )}
     </div>
   );
 }
