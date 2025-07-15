@@ -194,13 +194,12 @@ export default function AdminDashboard() {
 
         {/* Tab Content */}
         <div className="bg-white rounded-lg shadow">
-          {activeTab === 'links' && (
-            <AffiliateLinkList
-              links={affiliateLinks}
-              onEdit={handleEditLink}
-              onDelete={handleLinkDeleted}
-              onRefresh={fetchAffiliateLinks}
-              onCreateProduct={handleCreateProduct}
+          {activeTab === 'products' && (
+            <ProductList
+              products={products}
+              onEdit={handleProductEdit}
+              onDelete={handleProductDeleted}
+              onRefresh={handleRefreshProducts}
             />
           )}
 
@@ -208,21 +207,10 @@ export default function AdminDashboard() {
             <AnalyticsDashboard links={affiliateLinks} />
           )}
 
-          {activeTab === 'add-link' && (
-            <AffiliateLinkForm
-              link={selectedLink}
-              onSubmit={selectedLink ? handleLinkUpdated : handleLinkCreated}
-              onCancel={() => {
-                setSelectedLink(null);
-                setActiveTab('links');
-              }}
-            />
-          )}
-
           {activeTab === 'add-product' && (
             <ManualProductAddition
               onProductAdded={handleProductCreated}
-              onCancel={() => setActiveTab('links')}
+              onCancel={() => setActiveTab('products')}
             />
           )}
         </div>
