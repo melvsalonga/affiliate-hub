@@ -12,9 +12,9 @@ import { Product } from '@/types/product';
 export default function AdminDashboard() {
   const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'links' | 'analytics' | 'add-link' | 'add-product'>('links');
-  const [selectedLink, setSelectedLink] = useState<AffiliateLink | null>(null);
-  const [selectedLinkForProduct, setSelectedLinkForProduct] = useState<AffiliateLink | null>(null);
+  const [activeTab, setActiveTab] = useState<'products' | 'analytics' | 'add-product'>('products');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch affiliate links on component mount
@@ -124,9 +124,8 @@ export default function AdminDashboard() {
   };
 
   const tabs = [
-    { id: 'links', label: 'Affiliate Links', count: affiliateLinks.length },
+    { id: 'products', label: 'Products', count: products.length },
     { id: 'analytics', label: 'Analytics', count: null },
-    { id: 'add-link', label: selectedLink ? 'Edit Link' : 'Add Link', count: null },
     { id: 'add-product', label: 'Add Product', count: null }
   ];
 
@@ -183,11 +182,10 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => {
-                  setActiveTab(tab.id as 'links' | 'analytics' | 'add-link' | 'add-product');
-                  if (tab.id !== 'add-link') {
-                    setSelectedLink(null);
+                  setActiveTab(tab.id as 'products' | 'analytics' | 'add-product');
+                  if (tab.id !== 'add-product') {
+                    setSelectedProduct(null);
                   }
-                  setSelectedLinkForProduct(null); // Reset product creation state
                 }}
                 className={`flex items-center px-1 py-4 text-sm font-medium border-b-2 ${
                   activeTab === tab.id
