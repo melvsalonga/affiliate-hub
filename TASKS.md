@@ -31,6 +31,15 @@
 - [x] Implement "Buy Now" → affiliate link redirection
 - [x] Update search page to use admin products
 - [x] Create productUtils for unified product management
+- [x] Fix product detail page to work with admin products
+- [x] Implement edit product functionality
+- [x] Fix product deletion with localStorage sync
+- [x] Create beautiful Toast notification system
+- [x] Replace alert() with proper toast notifications
+- [x] Add proper form validation and error handling
+- [x] Fix Next.js image configuration for external domains
+- [x] Update tab labels to reflect add/edit mode
+- [ ] Beautify Add Product UI with better styling
 - [ ] Test complete user flow (browse → click → redirect)
 - [ ] Create product showcase automation tools
 - [ ] Implement image upload and management
