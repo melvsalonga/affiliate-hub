@@ -7,7 +7,7 @@
 2. Auth Service: Created authService.ts to manage authentication-related operations for admin users.
 3. Middleware: Implemented middleware to protect /admin routes, ensuring only authenticated admin users can access them.
 
-### 🚧 Week 4: Affiliate Link Management & Manual Product Automation (IN PROGRESS)
+### 🚧 Week 4: Product Management & Affiliate Integration (IN PROGRESS)
 
 #### ✅ Recently Completed Tasks:
 - [x] Build manual product addition interface
@@ -17,13 +17,21 @@
 - [x] Add "Add Product" tab to admin dashboard
 - [x] Implement session management and logout functionality
 
-#### 📋 Current Priority Tasks:
+#### 📋 Current Priority Tasks (Corrected Project Flow):
+
+**📝 PROJECT FLOW CLARIFICATION:**
+- **Admin Side:** Add products (with affiliate links) → Manage products → Track analytics
+- **User Side:** Browse products → Click "Buy Now" → Redirect to affiliate link
+
+**📝 IMMEDIATE TASKS:**
+- [ ] Refactor admin dashboard (remove redundant "Add Link" tab)
+- [ ] Create "Manage Products" tab (view, edit, delete products)
+- [ ] Connect admin products to main showcase (homepage)
+- [ ] Implement "Buy Now" → affiliate link redirection
 - [ ] Create product showcase automation tools
 - [ ] Implement image upload and management
-- [ ] Test affiliate link functionality in production
-- [ ] Add bulk operations for affiliate links
-- [ ] Implement affiliate link click tracking middleware
-- [ ] Create admin user role management
+- [ ] Test complete user flow (browse → click → redirect)
+- [ ] Add product analytics tracking
 
 #### 📋 Research  Planning Tasks:
 - [ ] Research Lazada API integration requirements

@@ -25,6 +25,52 @@ export default function AdminDashboard() {
   const fetchAffiliateLinks = async () => {
     try {
       setLoading(true);
+      
+      // TEMPORARY: Mock data for testing without database
+      // TODO: Re-enable API call when Supabase is configured
+      
+      // Mock affiliate links data
+      const mockLinks = [
+        {
+          id: '1',
+          originalUrl: 'https://www.lazada.com.ph/products/sample-product-1',
+          affiliateUrl: 'https://www.lazada.com.ph/products/sample-product-1?aff_track=123',
+          platform: 'lazada',
+          trackingId: 'track_123',
+          commission: 0.05,
+          clicks: 25,
+          conversions: 3,
+          revenue: 150.00,
+          isActive: true,
+          tags: ['electronics', 'smartphone'],
+          notes: 'Sample Lazada product',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: '2', 
+          originalUrl: 'https://shopee.ph/sample-product-2',
+          affiliateUrl: 'https://shopee.ph/sample-product-2?aff_track=456',
+          platform: 'shopee',
+          trackingId: 'track_456',
+          commission: 0.04,
+          clicks: 18,
+          conversions: 2,
+          revenue: 80.00,
+          isActive: true,
+          tags: ['fashion', 'clothing'],
+          notes: 'Sample Shopee product',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setAffiliateLinks(mockLinks);
+      
+      /*
       const response = await fetch('/api/affiliate/links');
       const data = await response.json();
       
@@ -33,6 +79,7 @@ export default function AdminDashboard() {
       } else {
         setError(data.error || 'Failed to fetch affiliate links');
       }
+      */
     } catch (error) {
       setError('Failed to fetch affiliate links');
       console.error('Error fetching affiliate links:', error);

@@ -90,8 +90,51 @@ export function ManualProductAddition({ onProductAdded, onCancel }: ManualProduc
         throw new Error('Affiliate URL is required');
       }
 
-      const product = await productAffiliateService.createManualProduct(formData);
+      // TEMPORARY: Create mock product for testing without database
+      // TODO: Re-enable service call when Supabase is configured
+      
+      const product = {
+        id: `manual_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        name: formData.name,
+        description: formData.description,
+        price: formData.price,
+        originalPrice: formData.originalPrice,
+        currency: 'PHP',
+        imageUrl: formData.imageUrl,
+        platform: {
+          id: formData.platform,
+          name: formData.platform,
+          displayName: formData.platform,
+          baseUrl: '',
+          logoUrl: '',
+          commission: 0.05,
+          currency: 'PHP'
+        },
+        affiliateUrl: formData.affiliateUrl,
+        category: formData.category,
+        brand: formData.brand,
+        rating: formData.rating || 4.5,
+        reviewCount: formData.reviewCount || 100,
+        discount: formData.originalPrice ? 
+          Math.round(((formData.originalPrice - formData.price) / formData.originalPrice) * 100) : 0,
+        isAvailable: formData.isAvailable,
+        location: formData.location,
+        shippingInfo: {
+          cost: 0,
+          estimatedDays: 3,
+          freeShippingMinimum: 500
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       onProductAdded(product);
+      
+      // const product = await productAffiliateService.createManualProduct(formData);
+      // onProductAdded(product);
       
       // Reset form
       setFormData({
