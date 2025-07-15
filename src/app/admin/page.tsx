@@ -15,6 +15,7 @@ export default function AdminDashboard() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { showSuccess, showError, ToastContainer } = useToast();
 
   // Fetch affiliate links and products on component mount
   useEffect(() => {
