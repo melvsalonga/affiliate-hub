@@ -6,6 +6,7 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ManualProductAddition } from '@/components/admin/ManualProductAddition';
 import { ProductList } from '@/components/admin/ProductList';
 import { Product } from '@/types/product';
+import { useToast } from '@/components/ui/Toast';
 
 export default function AdminDashboard() {
   const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([]);
