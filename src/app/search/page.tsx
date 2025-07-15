@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProductGrid from '@/components/product/ProductGrid';
 import Loading from '@/components/ui/Loading';
-import { mockProducts } from '@/data/mockProducts';
+import { productUtils } from '@/utils/productUtils';
 import { Product } from '@/types/product';
 import { storage } from '@/utils/localStorage';
 import { cacheService } from '@/services/cacheService';
