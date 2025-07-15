@@ -60,6 +60,63 @@ class ProductAffiliateService {
     return product;
   }
 
+  // Create product manually
+  async createManualProduct(productData: {
+    name: string;
+    description: string;
+    price: number;
+    originalPrice?: number;
+    imageUrl: string;
+    category: string;
+    brand?: string;
+    rating?: number;
+    reviewCount?: number;
+    platform: string;
+    affiliateUrl: string;
+    isAvailable: boolean;
+    location: string;
+  }): Promise<Product> {
+    const product: Product = {
+      id: `manual_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      name: productData.name,
+      description: productData.description,
+      price: productData.price,
+      originalPrice: productData.originalPrice,
+      currency: 'PHP',
+      imageUrl: productData.imageUrl,
+      platform: {
+        id: productData.platform,
+        name: this.getPlatformDisplayName(productData.platform),
+        displayName: this.getPlatformDisplayName(productData.platform),
+        baseUrl: this.getPlatformBaseUrl(productData.platform),
+        logoUrl: this.getPlatformLogoUrl(productData.platform),
+        commission: this.getDefaultCommission(productData.platform),
+        currency: 'PHP'
+      },
+      affiliateUrl: productData.affiliateUrl,
+      category: productData.category,
+      brand: productData.brand,
+      rating: productData.rating || 4.5,
+      reviewCount: productData.reviewCount || 100,
+      discount: productData.originalPrice ? 
+        Math.round(((productData.originalPrice - productData.price) / productData.originalPrice) * 100) : 0,
+      isAvailable: productData.isAvailable,
+      location: productData.location,
+      shippingInfo: {
+        cost: 0,
+        estimatedDays: 3,
+        freeShippingMinimum: 500
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    // Save product to storage
+    this.saveProductToStorage(product);
+
+    return product;
+  }
+
   // Get all products created from affiliate links
   getAffiliateProducts(): Product[] {
     try {
