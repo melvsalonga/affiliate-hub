@@ -7,7 +7,7 @@ import Link from 'next/link';
 import ProductGrid from '@/components/product/ProductGrid';
 import ProductCard from '@/components/product/ProductCard';
 import Loading from '@/components/ui/Loading';
-import { mockProducts } from '@/data/mockProducts';
+import { productUtils } from '@/utils/productUtils';
 import { Product } from '@/types/product';
 import { storage } from '@/utils/localStorage';
 import { cacheService } from '@/services/cacheService';
@@ -26,7 +26,7 @@ export default function ProductDetailPage() {
     
     // Simulate API call
     setTimeout(() => {
-      const foundProduct = mockProducts.find(p => p.id === productId);
+      const foundProduct = productUtils.getProductById(productId);
       if (foundProduct) {
         setProduct(foundProduct);
         
@@ -40,7 +40,7 @@ export default function ProductDetailPage() {
         setHasAlert(storage.priceAlerts.hasAlert(foundProduct.id));
         
         // Get related products (same category, different products)
-        const related = mockProducts
+        const related = productUtils.getAllProducts()
           .filter(p => p.category === foundProduct.category && p.id !== foundProduct.id)
           .slice(0, 4);
         setRelatedProducts(related);

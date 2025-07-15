@@ -7,6 +7,7 @@ import { productAffiliateService } from '@/services/productAffiliateService';
 interface ManualProductAdditionProps {
   onProductAdded: (product: Product) => void;
   onCancel?: () => void;
+  editingProduct?: Product | null;
 }
 
 interface ProductFormData {

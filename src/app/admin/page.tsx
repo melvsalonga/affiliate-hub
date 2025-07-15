@@ -116,12 +116,17 @@ export default function AdminDashboard() {
   };
 
   const handleProductDeleted = (productId: string) => {
+    // Update localStorage
+    const adminProducts = JSON.parse(localStorage.getItem('admin_products') || '[]');
+    const updatedProducts = adminProducts.filter((p: any) => p.id !== productId);
+    localStorage.setItem('admin_products', JSON.stringify(updatedProducts));
+    
+    // Update component state
     setProducts(prev => prev.filter(product => product.id !== productId));
   };
 
   const handleRefreshProducts = () => {
-    // TODO: Implement product refresh when we connect to backend
-    console.log('Refreshing products...');
+    loadProducts();
   };
 
   const tabs = [
