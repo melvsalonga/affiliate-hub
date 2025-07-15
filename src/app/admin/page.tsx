@@ -6,12 +6,13 @@ import { AffiliateLinkForm } from '@/components/admin/AffiliateLinkForm';
 import { AffiliateLinkList } from '@/components/admin/AffiliateLinkList';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ProductFromLinkForm } from '@/components/admin/ProductFromLinkForm';
+import { ManualProductAddition } from '@/components/admin/ManualProductAddition';
 import { Product } from '@/types/product';
 
 export default function AdminDashboard() {
   const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'links' | 'analytics' | 'add-link'>('links');
+  const [activeTab, setActiveTab] = useState<'links' | 'analytics' | 'add-link' | 'add-product'>('links');
   const [selectedLink, setSelectedLink] = useState<AffiliateLink | null>(null);
   const [selectedLinkForProduct, setSelectedLinkForProduct] = useState<AffiliateLink | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +79,8 @@ export default function AdminDashboard() {
   const tabs = [
     { id: 'links', label: 'Affiliate Links', count: affiliateLinks.length },
     { id: 'analytics', label: 'Analytics', count: null },
-    { id: 'add-link', label: selectedLink ? 'Edit Link' : 'Add Link', count: null }
+    { id: 'add-link', label: selectedLink ? 'Edit Link' : 'Add Link', count: null },
+    { id: 'add-product', label: 'Add Product', count: null }
   ];
 
   if (loading) {
@@ -134,7 +136,7 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => {
-                  setActiveTab(tab.id as any);
+                  setActiveTab(tab.id as 'links' | 'analytics' | 'add-link');
                   if (tab.id !== 'add-link') {
                     setSelectedLink(null);
                   }

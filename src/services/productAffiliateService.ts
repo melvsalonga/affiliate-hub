@@ -273,6 +273,18 @@ class ProductAffiliateService {
     return `/logos/${platform}.png`;
   }
 
+  private getDefaultCommission(platform: string): number {
+    const commissionMap: Record<string, number> = {
+      'lazada': 0.05,
+      'shopee': 0.04,
+      'tiktok': 0.15,
+      'amazon': 0.08,
+      'aliexpress': 0.06,
+      'manual': 0.05
+    };
+    return commissionMap[platform] || 0.05;
+  }
+
   private generateSessionId(): string {
     return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
