@@ -136,7 +136,7 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => {
-                  setActiveTab(tab.id as 'links' | 'analytics' | 'add-link');
+                  setActiveTab(tab.id as 'links' | 'analytics' | 'add-link' | 'add-product');
                   if (tab.id !== 'add-link') {
                     setSelectedLink(null);
                   }
@@ -187,6 +187,13 @@ export default function AdminDashboard() {
                 setSelectedLink(null);
                 setActiveTab('links');
               }}
+            />
+          )}
+
+          {activeTab === 'add-product' && (
+            <ManualProductAddition
+              onProductAdded={handleProductCreated}
+              onCancel={() => setActiveTab('links')}
             />
           )}
         </div>
