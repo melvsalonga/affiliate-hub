@@ -15,10 +15,27 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch affiliate links on component mount
+  // Fetch affiliate links and products on component mount
   useEffect(() => {
     fetchAffiliateLinks();
+    loadProducts();
   }, []);
+
+  const loadProducts = () => {
+    try {
+      const savedProducts = localStorage.getItem('admin_products');
+      if (savedProducts) {
+        const parsedProducts = JSON.parse(savedProducts).map((product: any) => ({
+          ...product,
+          createdAt: new Date(product.createdAt),
+          updatedAt: new Date(product.updatedAt)
+        }));
+        setProducts(parsedProducts);
+      }
+    } catch (error) {
+      console.error('Error loading products:', error);
+    }
+  };
 
   const fetchAffiliateLinks = async () => {
     try {

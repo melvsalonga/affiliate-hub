@@ -68,6 +68,18 @@ export function ManualProductAddition({ onProductAdded, onCancel }: ManualProduc
     'Others'
   ];
 
+  const getPlatformBaseUrl = (platform: string) => {
+    const urls = {
+      'lazada': 'https://lazada.com.ph',
+      'shopee': 'https://shopee.ph',
+      'tiktok': 'https://shop.tiktok.com',
+      'amazon': 'https://amazon.com',
+      'aliexpress': 'https://aliexpress.com',
+      'manual': ''
+    };
+    return urls[platform as keyof typeof urls] || '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
