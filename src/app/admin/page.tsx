@@ -110,11 +110,11 @@ export default function AdminDashboard() {
       // Update existing product
       setProducts(prev => prev.map(p => p.id === product.id ? product : p));
       setSelectedProduct(null);
-      alert(`Product "${product.name}" updated successfully!`);
+      showSuccess(`Product "${product.name}" updated successfully!`);
     } else {
       // Add new product
       setProducts(prev => [product, ...prev]);
-      alert(`Product "${product.name}" created successfully!`);
+      showSuccess(`Product "${product.name}" created successfully!`);
     }
     setActiveTab('products');
   };
