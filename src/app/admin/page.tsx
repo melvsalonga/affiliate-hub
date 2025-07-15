@@ -104,10 +104,17 @@ export default function AdminDashboard() {
   };
 
   const handleProductCreated = (product: Product) => {
-    setProducts(prev => [product, ...prev]);
+    if (selectedProduct) {
+      // Update existing product
+      setProducts(prev => prev.map(p => p.id === product.id ? product : p));
+      setSelectedProduct(null);
+      alert(`Product "${product.name}" updated successfully!`);
+    } else {
+      // Add new product
+      setProducts(prev => [product, ...prev]);
+      alert(`Product "${product.name}" created successfully!`);
+    }
     setActiveTab('products');
-    // Show success message
-    alert(`Product "${product.name}" created successfully!`);
   };
 
   const handleProductEdit = (product: Product) => {
@@ -132,7 +139,7 @@ export default function AdminDashboard() {
   const tabs = [
     { id: 'products', label: 'Products', count: products.length },
     { id: 'analytics', label: 'Analytics', count: null },
-    { id: 'add-product', label: 'Add Product', count: null }
+    { id: 'add-product', label: selectedProduct ? 'Edit Product' : 'Add Product', count: null }
   ];
 
   if (loading) {
@@ -233,6 +240,7 @@ export default function AdminDashboard() {
             <ManualProductAddition
               onProductAdded={handleProductCreated}
               onCancel={() => setActiveTab('products')}
+              editingProduct={selectedProduct}
             />
           )}
         </div>

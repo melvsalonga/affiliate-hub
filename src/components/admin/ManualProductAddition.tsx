@@ -103,9 +103,9 @@ export function ManualProductAddition({ onProductAdded, onCancel, editingProduct
         throw new Error('Affiliate URL is required');
       }
 
-      // Create product with localStorage persistence
+      // Create or update product with localStorage persistence
       const product = {
-        id: `manual_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: editingProduct?.id || `manual_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: formData.name,
         description: formData.description,
         price: formData.price,
@@ -135,13 +135,24 @@ export function ManualProductAddition({ onProductAdded, onCancel, editingProduct
           estimatedDays: 3,
           freeShippingMinimum: 500
         },
-        createdAt: new Date(),
+        createdAt: editingProduct?.createdAt || new Date(),
         updatedAt: new Date()
       };
       
       // Save to localStorage for persistence and sharing with frontend
       const existingProducts = JSON.parse(localStorage.getItem('admin_products') || '[]');
-      const updatedProducts = [product, ...existingProducts];
+      let updatedProducts;
+      
+      if (editingProduct) {
+        // Update existing product
+        updatedProducts = existingProducts.map((p: any) => 
+          p.id === editingProduct.id ? product : p
+        );
+      } else {
+        // Add new product
+        updatedProducts = [product, ...existingProducts];
+      }
+      
       localStorage.setItem('admin_products', JSON.stringify(updatedProducts));
       
       // Simulate API delay
@@ -176,7 +187,7 @@ export function ManualProductAddition({ onProductAdded, onCancel, editingProduct
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Add Product Manually</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{editingProduct ? 'Edit Product' : 'Add Product Manually'}</h2>
         {onCancel && (
           <button
             onClick={onCancel}
@@ -450,7 +461,7 @@ export function ManualProductAddition({ onProductAdded, onCancel, editingProduct
             disabled={loading}
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Adding Product...' : 'Add Product'}
+            {loading ? (editingProduct ? 'Updating Product...' : 'Adding Product...') : (editingProduct ? 'Update Product' : 'Add Product')}
           </button>
         </div>
       </form>
