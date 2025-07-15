@@ -26,21 +26,21 @@ interface ProductFormData {
   location: string;
 }
 
-export function ManualProductAddition({ onProductAdded, onCancel }: ManualProductAdditionProps) {
+export function ManualProductAddition({ onProductAdded, onCancel, editingProduct }: ManualProductAdditionProps) {
   const [formData, setFormData] = useState<ProductFormData>({
-    name: '',
-    description: '',
-    price: 0,
-    originalPrice: 0,
-    imageUrl: '',
-    category: 'Electronics',
-    brand: '',
-    rating: 4.5,
-    reviewCount: 100,
-    platform: 'manual',
-    affiliateUrl: '',
-    isAvailable: true,
-    location: 'Philippines'
+    name: editingProduct?.name || '',
+    description: editingProduct?.description || '',
+    price: editingProduct?.price || 0,
+    originalPrice: editingProduct?.originalPrice || 0,
+    imageUrl: editingProduct?.imageUrl || '',
+    category: editingProduct?.category || 'Electronics',
+    brand: editingProduct?.brand || '',
+    rating: editingProduct?.rating || 4.5,
+    reviewCount: editingProduct?.reviewCount || 100,
+    platform: editingProduct?.platform?.id || 'manual',
+    affiliateUrl: editingProduct?.affiliateUrl || '',
+    isAvailable: editingProduct?.isAvailable !== undefined ? editingProduct.isAvailable : true,
+    location: editingProduct?.location || 'Philippines'
   });
 
   const [loading, setLoading] = useState(false);
