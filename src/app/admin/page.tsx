@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/Toast';
 export default function AdminDashboard() {
   const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'products' | 'analytics' | 'add-product'>('products');
+  const [activeTab, setActiveTab] = useState'products' | 'analytics' | 'manual-add-product' | 'auto-add-product'('products');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -141,7 +141,8 @@ export default function AdminDashboard() {
   const tabs = [
     { id: 'products', label: 'Products', count: products.length },
     { id: 'analytics', label: 'Analytics', count: null },
-    { id: 'add-product', label: selectedProduct ? 'Edit Product' : 'Add Product', count: null }
+{ id: 'manual-add-product', label: 'Add Product Manually', count: null },
+    { id: 'auto-add-product', label: 'Add Product Automatically', count: null }
   ];
 
   if (loading) {
@@ -238,12 +239,19 @@ export default function AdminDashboard() {
             <AnalyticsDashboard links={affiliateLinks} />
           )}
 
-          {activeTab === 'add-product' && (
-            <ManualProductAddition
+{activeTab === 'manual-add-product'  (
+            ManualProductAddition
               onProductAdded={handleProductCreated}
-              onCancel={() => setActiveTab('products')}
+              onCancel={() => setActiveTab('products')}
               editingProduct={selectedProduct}
-            />
+            /
+          )}
+
+          {activeTab === 'auto-add-product'  (
+            AutomaticProductAddition
+              onProductAdded={handleProductCreated}
+              onCancel={() => setActiveTab('products')}
+            /
           )}
         </div>
       </div>
