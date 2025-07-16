@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { AffiliateLink } from '@/types/affiliate';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ManualProductAddition } from '@/components/admin/ManualProductAddition';
+import { AutomaticProductAddition } from '@/components/admin/AutomaticProductAddition';
 import { ProductList } from '@/components/admin/ProductList';
 import { Product } from '@/types/product';
 import { useToast } from '@/components/ui/Toast';
@@ -11,7 +12,7 @@ import { useToast } from '@/components/ui/Toast';
 export default function AdminDashboard() {
   const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState'products' | 'analytics' | 'manual-add-product' | 'auto-add-product'('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'analytics' | 'manual-add-product' | 'auto-add-product'>('products');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +122,7 @@ export default function AdminDashboard() {
 
   const handleProductEdit = (product: Product) => {
     setSelectedProduct(product);
-    setActiveTab('add-product');
+    setActiveTab('manual-add-product');
   };
 
   const handleProductDeleted = (productId: string) => {
@@ -198,8 +199,8 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => {
-                  setActiveTab(tab.id as 'products' | 'analytics' | 'add-product');
-                  if (tab.id !== 'add-product') {
+                  setActiveTab(tab.id as 'products' | 'analytics' | 'manual-add-product' | 'auto-add-product');
+                  if (tab.id !== 'manual-add-product' && tab.id !== 'auto-add-product') {
                     setSelectedProduct(null);
                   }
                 }}
@@ -239,19 +240,19 @@ export default function AdminDashboard() {
             <AnalyticsDashboard links={affiliateLinks} />
           )}
 
-{activeTab === 'manual-add-product'  (
-            ManualProductAddition
+{activeTab === 'manual-add-product' && (
+            <ManualProductAddition
               onProductAdded={handleProductCreated}
-              onCancel={() => setActiveTab('products')}
+              onCancel={() => setActiveTab('products')}
               editingProduct={selectedProduct}
-            /
+            />
           )}
 
-          {activeTab === 'auto-add-product'  (
-            AutomaticProductAddition
+          {activeTab === 'auto-add-product' && (
+            <AutomaticProductAddition
               onProductAdded={handleProductCreated}
-              onCancel={() => setActiveTab('products')}
-            /
+              onCancel={() => setActiveTab('products')}
+            />
           )}
         </div>
       </div>

@@ -10,7 +10,7 @@ interface AutomaticProductAdditionProps {
   editingProduct?: Product | null;
 }
 
-interface ExtractedProductData {
+export interface ExtractedProductData {
   name: string;
   description: string;
   price: number;
