@@ -185,20 +185,40 @@ export function ManualProductAddition({ onProductAdded, onCancel, editingProduct
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">{editingProduct ? 'Edit Product' : 'Add Product Manually'}</h2>
-        {onCancel && (
-          <button
-            onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        )}
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+      <div className="max-w-5xl mx-auto">
+        {/* Header Section */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 mb-8">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-t-2xl">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">
+                    {editingProduct ? '✏️ Edit Product' : '✨ Add New Product'}
+                  </h1>
+                  <p className="text-blue-100 mt-1">
+                    {editingProduct ? 'Update your product information' : 'Create a new product for your affiliate showcase'}
+                  </p>
+                </div>
+              </div>
+              {onCancel && (
+                <button
+                  onClick={onCancel}
+                  className="text-white hover:text-blue-200 transition-colors p-2 rounded-full hover:bg-white hover:bg-opacity-10"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
