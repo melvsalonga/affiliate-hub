@@ -55,7 +55,21 @@ export function AutomaticProductAddition({ onProductAdded, onCancel, editingProd
     setExtractError(null);
 
     try {
-      const data = await productScraperService.extractProductData(affiliateUrl);
+      const response = await fetch('/api/scrape-product', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: affiliateUrl }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to extract product data');
+      }
+
+      const data = result.data;
       setExtractedData(data);
     } catch (error) {
       setExtractError(error instanceof Error ? error.message : 'Failed to extract product data');
