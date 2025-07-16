@@ -49,6 +49,20 @@
 - [x] Create beautiful error handling with styled alerts
 - [x] Test complete user flow (browse → click → redirect)
 - [ ] Create product showcase automation tools
+- [ ] **AUTOMATIC PRODUCT ADDITION FEATURE:**
+  - [ ] Add "Manual" and "Automatic" tabs in admin dashboard
+  - [ ] Create AutomaticProductAddition component
+  - [ ] Build affiliate link input field with validation
+  - [ ] Create web scraper service for product data extraction
+  - [ ] Implement URL parser to detect platform (Lazada, Shopee, TikTok, etc.)
+  - [ ] Extract product info automatically (title, price, images, description)
+  - [ ] Auto-fill product form with scraped data
+  - [ ] Add "Extract Product Info" button functionality
+  - [ ] Allow editing of auto-extracted product data
+  - [ ] Ensure automatic products behave identically to manual products
+  - [ ] Save automatic products to same localStorage/database as manual
+  - [ ] Add loading states and error handling for scraping
+  - [ ] Test with real affiliate links from all platforms
 - [ ] Implement image upload and management
 - [ ] Add product analytics tracking
 
@@ -63,13 +77,13 @@
 
 ## 📊 Progress Summary
 
-### Phase 1 Progress: 80% (16/20 tasks completed)
+### Phase 1 Progress: 75% (16/21 tasks completed)
 - **Week 1:** 100% complete ✅
 - **Week 2:** 100% complete ✅
 - **Week 3:** 100% complete ✅
 - **Week 4:** 80% complete 🚧
 
-### Overall Project Progress: 25% (40/160 total tasks)
+### Overall Project Progress: 25% (40/163 total tasks)
 
 ## 🎯 Next Steps
 
