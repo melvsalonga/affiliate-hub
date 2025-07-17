@@ -8,6 +8,7 @@ import { productUtils } from '@/utils/productUtils';
 import { Product } from '@/types/product';
 import { storage } from '@/utils/localStorage';
 import { cacheService } from '@/services/cacheService';
+import { analyticsService } from '@/services/analyticsService';
 
 const platforms = [
   { id: 'all', name: 'All Platforms' },
@@ -42,7 +43,7 @@ function SearchContent() {
     setSearchQuery(query);
     setSelectedPlatform(platform);
     
-    // Save search to history
+    // Save search to history and track analytics
     if (query) {
       storage.searchHistory.add(query);
     }
@@ -65,6 +66,12 @@ function SearchContent() {
       
       // Cache the results for future use
       cacheService.setSearchResults(query, platform, searchResults);
+      
+      // Track search analytics
+      if (query) {
+        analyticsService.trackSearch(query, searchResults.length);
+      }
+      
       setProducts(searchResults);
       setLoading(false);
     }, 500);
