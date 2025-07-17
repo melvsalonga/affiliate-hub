@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/types/product';
 import { storage } from '@/utils/localStorage';
+import { analyticsService } from '@/services/analyticsService';
 
 interface ProductCardProps {
   product: Product;
@@ -25,6 +26,14 @@ export default function ProductCard({
   useEffect(() => {
     setIsFavorite(storage.userFavorites.isFavorite(product.id));
     setHasAlert(storage.priceAlerts.hasAlert(product.id));
+    
+    // Track product view
+    analyticsService.trackProductView(
+      product.id,
+      product.name,
+      product.platform.id,
+      document.referrer
+    );
   }, [product.id]);
 
   const handleFavoriteToggle = (e: React.MouseEvent) => {
@@ -224,9 +233,16 @@ export default function ProductCard({
             href={product.affiliateUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() =>
-              storage.clickEvents.add(product.id, product.platform.id)
-            }
+            onClick={() => {
+              // Track both old and new analytics
+              storage.clickEvents.add(product.id, product.platform.id);
+              analyticsService.trackAffiliateClick(
+                product.id,
+                product.name,
+                product.platform.id,
+                product.affiliateUrl
+              );
+            }}
             className={`w-full ${getPlatformColor(product.platform.id)} text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center`}
           >
             View on {product.platform.displayName}
