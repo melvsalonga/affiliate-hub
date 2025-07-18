@@ -1,23 +1,16 @@
-// Affiliate link management types
+// Affiliate link management types - Updated for new schema
 
 export interface AffiliateLink {
   id: string;
+  productId: string;
+  platformId: string;
   originalUrl: string;
-  affiliateUrl: string;
-  shortUrl?: string;
-  platform: string;
-  productId?: string;
-  trackingId: string;
+  shortenedUrl?: string;
   commission: number;
-  clicks: number;
-  conversions: number;
-  revenue: number;
   isActive: boolean;
+  priority: number;
   createdAt: Date;
   updatedAt: Date;
-  expiresAt?: Date;
-  tags?: string[];
-  notes?: string;
 }
 
 export interface AffiliateLinkConfig {

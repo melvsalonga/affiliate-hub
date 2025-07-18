@@ -1,0 +1,329 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  role      UserRole @default(ADMIN)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  lastLoginAt DateTime? @map("last_login_at") @db.Timestamptz
+
+  // Profile information
+  profile UserProfile?
+
+  // Relationships
+  products Product[]
+  categories Category[]
+  campaigns Campaign[]
+  
+  @@map("users")
+}
+
+model UserProfile {
+  id        String @id @default(uuid()) @db.Uuid
+  userId    String @unique @map("user_id") @db.Uuid
+  firstName String? @map("first_name")
+  lastName  String? @map("last_name")
+  avatar    String?
+  timezone  String @default("UTC")
+  
+  // Preferences
+  theme     Theme @default(SYSTEM)
+  language  String @default("en")
+  
+  // Notification settings
+  emailNotifications EmailNotificationSettings?
+  pushNotifications  PushNotificationSettings?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_profiles")
+}
+
+model EmailNotificationSettings {
+  id              String @id @default(uuid()) @db.Uuid
+  userProfileId   String @unique @map("user_profile_id") @db.Uuid
+  newConversions  Boolean @default(true) @map("new_conversions")
+  weeklyReports   Boolean @default(true) @map("weekly_reports")
+  systemUpdates   Boolean @default(true) @map("system_updates")
+  
+  userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  
+  @@map("email_notification_settings")
+}
+
+model PushNotificationSettings {
+  id              String @id @default(uuid()) @db.Uuid
+  userProfileId   String @unique @map("user_profile_id") @db.Uuid
+  realTimeAlerts  Boolean @default(false) @map("real_time_alerts")
+  dailySummary    Boolean @default(true) @map("daily_summary")
+  
+  userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  
+  @@map("push_notification_settings")
+}
+
+// Product Management
+model Category {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String  @unique
+  description String?
+  icon        String?
+  parentId    String? @map("parent_id") @db.Uuid
+  order       Int     @default(0)
+  isActive    Boolean @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  createdBy   String  @map("created_by") @db.Uuid
+
+  // Self-referential relationship for hierarchical categories
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  
+  // Relationships
+  products    Product[]
+  creator     User @relation(fields: [createdBy], references: [id])
+  
+  @@map("categories")
+}
+
+model Tag {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  color     String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  
+  // Many-to-many relationship with products
+  products  ProductTag[]
+  
+  @@map("tags")
+}
+
+model Product {
+  id               String        @id @default(uuid()) @db.Uuid
+  title            String
+  description      String
+  shortDescription String?       @map("short_description")
+  
+  // Pricing
+  currentPrice     Decimal       @map("current_price") @db.Decimal(10,2)
+  originalPrice    Decimal?      @map("original_price") @db.Decimal(10,2)
+  currency         String        @default("USD")
+  
+  // SEO
+  metaTitle        String?       @map("meta_title")
+  metaDescription  String?       @map("meta_description")
+  slug             String        @unique
+  
+  // Status and visibility
+  status           ProductStatus @default(DRAFT)
+  isActive         Boolean       @default(true) @map("is_active")
+  
+  // Timestamps
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  publishedAt      DateTime?     @map("published_at") @db.Timestamptz
+  
+  // Foreign keys
+  categoryId       String        @map("category_id") @db.Uuid
+  createdBy        String        @map("created_by") @db.Uuid
+  
+  // Relationships
+  category         Category      @relation(fields: [categoryId], references: [id])
+  creator          User          @relation(fields: [createdBy], references: [id])
+  images           ProductImage[]
+  affiliateLinks   AffiliateLink[]
+  tags             ProductTag[]
+  analytics        ProductAnalytics?
+  
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(uuid()) @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  url       String
+  alt       String
+  isPrimary Boolean @default(false) @map("is_primary")
+  order     Int     @default(0)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@map("product_images")
+}
+
+model ProductTag {
+  productId String @map("product_id") @db.Uuid
+  tagId     String @map("tag_id") @db.Uuid
+  
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@id([productId, tagId])
+  @@map("product_tags")
+}
+
+// Affiliate Link Management
+model Platform {
+  id            String @id @default(uuid()) @db.Uuid
+  name          String @unique
+  displayName   String @map("display_name")
+  baseUrl       String @map("base_url")
+  logoUrl       String? @map("logo_url")
+  isActive      Boolean @default(true) @map("is_active")
+  
+  affiliateLinks AffiliateLink[]
+  
+  @@map("platforms")
+}
+
+model AffiliateLink {
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  platformId   String   @map("platform_id") @db.Uuid
+  originalUrl  String   @map("original_url")
+  shortenedUrl String?  @map("shortened_url")
+  commission   Decimal  @db.Decimal(5,4) @default(0.0000)
+  isActive     Boolean  @default(true) @map("is_active")
+  priority     Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  
+  // Relationships
+  product      Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  platform     Platform    @relation(fields: [platformId], references: [id])
+  analytics    LinkAnalytics?
+  clicks       ClickEvent[]
+  conversions  ConversionEvent[]
+  
+  @@map("affiliate_links")
+}
+
+// Analytics and Tracking
+model LinkAnalytics {
+  id              String @id @default(uuid()) @db.Uuid
+  linkId          String @unique @map("link_id") @db.Uuid
+  totalClicks     Int    @default(0) @map("total_clicks")
+  totalConversions Int   @default(0) @map("total_conversions")
+  totalRevenue    Decimal @default(0) @map("total_revenue") @db.Decimal(10,2)
+  conversionRate  Decimal @default(0) @map("conversion_rate") @db.Decimal(5,4)
+  averageOrderValue Decimal @default(0) @map("average_order_value") @db.Decimal(10,2)
+  lastUpdated     DateTime @updatedAt @map("last_updated") @db.Timestamptz
+  
+  affiliateLink   AffiliateLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  
+  @@map("link_analytics")
+}
+
+model ProductAnalytics {
+  id              String @id @default(uuid()) @db.Uuid
+  productId       String @unique @map("product_id") @db.Uuid
+  views           Int    @default(0)
+  clicks          Int    @default(0)
+  conversions     Int    @default(0)
+  revenue         Decimal @default(0) @db.Decimal(10,2)
+  lastUpdated     DateTime @updatedAt @map("last_updated") @db.Timestamptz
+  
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@map("product_analytics")
+}
+
+model ClickEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  linkId        String   @map("link_id") @db.Uuid
+  sessionId     String   @map("session_id")
+  ipAddress     String?  @map("ip_address")
+  userAgent     String?  @map("user_agent")
+  referrer      String?
+  country       String?
+  city          String?
+  device        String?
+  browser       String?
+  os            String?
+  timestamp     DateTime @default(now()) @db.Timestamptz
+  
+  affiliateLink AffiliateLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  conversion    ConversionEvent?
+  
+  @@index([linkId, timestamp])
+  @@map("click_events")
+}
+
+model ConversionEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  linkId        String   @map("link_id") @db.Uuid
+  clickId       String?  @unique @map("click_id") @db.Uuid
+  orderValue    Decimal  @map("order_value") @db.Decimal(10,2)
+  commission    Decimal  @db.Decimal(10,2)
+  currency      String   @default("USD")
+  status        ConversionStatus @default(PENDING)
+  orderId       String?  @map("order_id")
+  productIds    String[] @map("product_ids")
+  timestamp     DateTime @default(now()) @db.Timestamptz
+  
+  affiliateLink AffiliateLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  click         ClickEvent?   @relation(fields: [clickId], references: [id])
+  
+  @@index([linkId, timestamp])
+  @@map("conversion_events")
+}
+
+// Campaign Management
+model Campaign {
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String
+  description   String?
+  startDate     DateTime  @map("start_date") @db.Timestamptz
+  endDate       DateTime? @map("end_date") @db.Timestamptz
+  budget        Decimal?  @db.Decimal(10,2)
+  targetRevenue Decimal?  @map("target_revenue") @db.Decimal(10,2)
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  createdBy     String    @map("created_by") @db.Uuid
+  
+  creator       User      @relation(fields: [createdBy], references: [id])
+  
+  @@map("campaigns")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+  SCHEDULED
+}
+
+enum ConversionStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}

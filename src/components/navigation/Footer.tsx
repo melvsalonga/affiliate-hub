@@ -1,138 +1,271 @@
+'use client';
+
+import React from 'react';
 import Link from 'next/link';
+import { brandConfig } from '@/config/brand';
+import { Container } from '@/components/layout/Container';
+import { Grid, GridItem } from '@/components/layout/Grid';
+import { Typography } from '@/components/ui/Typography';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { 
+  ShoppingBag, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Facebook, 
+  Twitter, 
+  Instagram, 
+  Youtube,
+  Shield,
+  Award,
+  Zap
+} from 'lucide-react';
 
-const platforms = [
-  { id: 'lazada', name: 'Lazada', href: 'https://lazada.com.ph' },
-  { id: 'shopee', name: 'Shopee', href: 'https://shopee.ph' },
-  { id: 'tiktok', name: 'TikTok Shop', href: 'https://shop.tiktok.com' },
-  { id: 'amazon', name: 'Amazon', href: 'https://amazon.com' },
-  { id: 'aliexpress', name: 'AliExpress', href: 'https://aliexpress.com' },
+const footerLinks = {
+  product: [
+    { label: 'Features', href: '/features' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'API', href: '/api' },
+    { label: 'Integrations', href: '/integrations' },
+  ],
+  company: [
+    { label: 'About Us', href: '/about' },
+    { label: 'Careers', href: '/careers' },
+    { label: 'Press', href: '/press' },
+    { label: 'Contact', href: '/contact' },
+  ],
+  resources: [
+    { label: 'Blog', href: '/blog' },
+    { label: 'Help Center', href: '/help' },
+    { label: 'Community', href: '/community' },
+    { label: 'Guides', href: '/guides' },
+  ],
+  legal: [
+    { label: 'Privacy Policy', href: '/privacy' },
+    { label: 'Terms of Service', href: '/terms' },
+    { label: 'Cookie Policy', href: '/cookies' },
+    { label: 'GDPR', href: '/gdpr' },
+  ],
+};
+
+const socialLinks = [
+  { icon: Facebook, href: '#', label: 'Facebook' },
+  { icon: Twitter, href: '#', label: 'Twitter' },
+  { icon: Instagram, href: '#', label: 'Instagram' },
+  { icon: Youtube, href: '#', label: 'YouTube' },
 ];
 
-const categories = [
-  { id: 'electronics', name: 'Electronics' },
-  { id: 'fashion', name: 'Fashion' },
-  { id: 'home', name: 'Home & Garden' },
-  { id: 'beauty', name: 'Beauty & Health' },
-  { id: 'sports', name: 'Sports & Outdoors' },
-  { id: 'books', name: 'Books & Media' },
+const trustIndicators = [
+  { icon: Shield, text: '100% Secure' },
+  { icon: Award, text: 'Trusted by 10K+' },
+  { icon: Zap, text: 'Lightning Fast' },
 ];
 
-export default function Footer() {
+export const Footer: React.FC = () => {
+  const [email, setEmail] = React.useState('');
+  const [isSubscribing, setIsSubscribing] = React.useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setIsSubscribing(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsSubscribing(false);
+    setEmail('');
+    // Show success message
+  };
+
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Footer Content */}
-        <div className="py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* About Section */}
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">A</span>
+    <footer className="bg-neutral-900 text-neutral-100 pb-16 md:pb-0">
+      {/* Newsletter Section */}
+      <div className="bg-gradient-to-r from-primary-600 to-secondary-600 py-12">
+        <Container>
+          <div className="text-center">
+            <Typography variant="h3" color="default" className="text-white mb-4">
+              Stay Updated with Best Deals
+            </Typography>
+            <Typography variant="body1" color="default" className="text-primary-100 mb-8 max-w-2xl mx-auto">
+              Get exclusive access to the latest deals, price drops, and affiliate marketing insights delivered to your inbox.
+            </Typography>
+            
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <Input
+                type="email"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/70"
+                required
+              />
+              <Button
+                type="submit"
+                variant="secondary"
+                loading={isSubscribing}
+                className="bg-white text-primary-600 hover:bg-neutral-100"
+              >
+                Subscribe
+              </Button>
+            </form>
+          </div>
+        </Container>
+      </div>
+
+      {/* Main Footer Content */}
+      <div className="py-16">
+        <Container>
+          <Grid cols={1} gap="lg" responsive={{ md: 2, lg: 4 }}>
+            {/* Brand Section */}
+            <GridItem span={1} responsive={{ lg: 1 }}>
+              <div className="space-y-6">
+                <Link href="/" className="flex items-center space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500">
+                    <ShoppingBag className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <Typography variant="h6" color="default" className="text-white">
+                      {brandConfig.name}
+                    </Typography>
+                    <Typography variant="caption" color="default" className="text-neutral-400">
+                      {brandConfig.tagline}
+                    </Typography>
+                  </div>
+                </Link>
+                
+                <Typography variant="body2" color="default" className="text-neutral-300 leading-relaxed">
+                  {brandConfig.description}
+                </Typography>
+
+                {/* Trust Indicators */}
+                <div className="flex flex-wrap gap-4">
+                  {trustIndicators.map((indicator, index) => (
+                    <div key={index} className="flex items-center space-x-2 text-sm text-neutral-300">
+                      <indicator.icon className="h-4 w-4 text-primary-400" />
+                      <span>{indicator.text}</span>
+                    </div>
+                  ))}
                 </div>
-                <span className="text-xl font-bold">Affiliate Hub</span>
-              </div>
-              <p className="text-gray-400 mb-4">
-                Your one-stop destination for finding the best deals from multiple e-commerce platforms. 
-                Compare prices and save money on your favorite products.
-              </p>
-              <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-white">
-                  <span className="sr-only">Facebook</span>
-                  📘
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white">
-                  <span className="sr-only">Twitter</span>
-                  🐦
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white">
-                  <span className="sr-only">Instagram</span>
-                  📷
-                </a>
-              </div>
-            </div>
 
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2">
-                <li><Link href="/deals" className="text-gray-400 hover:text-white">Today's Deals</Link></li>
-                <li><Link href="/trending" className="text-gray-400 hover:text-white">Trending Products</Link></li>
-                <li><Link href="/favorites" className="text-gray-400 hover:text-white">My Favorites</Link></li>
-                <li><Link href="/alerts" className="text-gray-400 hover:text-white">Price Alerts</Link></li>
-                <li><Link href="/search" className="text-gray-400 hover:text-white">Advanced Search</Link></li>
-                <li><Link href="/about" className="text-gray-400 hover:text-white">About Us</Link></li>
-              </ul>
-            </div>
-
-            {/* Categories */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Categories</h3>
-              <ul className="space-y-2">
-                {categories.map(category => (
-                  <li key={category.id}>
-                    <Link 
-                      href={`/category/${category.id}`}
-                      className="text-gray-400 hover:text-white"
+                {/* Social Links */}
+                <div className="flex space-x-4">
+                  {socialLinks.map((social, index) => (
+                    <Link
+                      key={index}
+                      href={social.href}
+                      className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-white transition-colors"
+                      aria-label={social.label}
                     >
-                      {category.name}
+                      <social.icon className="h-5 w-5" />
                     </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                  ))}
+                </div>
+              </div>
+            </GridItem>
 
-            {/* Platforms */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Shop From</h3>
-              <ul className="space-y-2">
-                {platforms.map(platform => (
-                  <li key={platform.id}>
-                    <Link 
-                      href={`/platform/${platform.id}`}
-                      className="text-gray-400 hover:text-white"
-                    >
-                      {platform.name}
-                    </Link>
-                  </li>
+            {/* Product Links */}
+            <GridItem>
+              <div className="space-y-4">
+                <Typography variant="h6" color="default" className="text-white">
+                  Product
+                </Typography>
+                <ul className="space-y-3">
+                  {footerLinks.product.map((link, index) => (
+                    <li key={index}>
+                      <Link
+                        href={link.href}
+                        className="text-neutral-300 hover:text-white transition-colors text-sm"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </GridItem>
+
+            {/* Company Links */}
+            <GridItem>
+              <div className="space-y-4">
+                <Typography variant="h6" color="default" className="text-white">
+                  Company
+                </Typography>
+                <ul className="space-y-3">
+                  {footerLinks.company.map((link, index) => (
+                    <li key={index}>
+                      <Link
+                        href={link.href}
+                        className="text-neutral-300 hover:text-white transition-colors text-sm"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </GridItem>
+
+            {/* Resources Links */}
+            <GridItem>
+              <div className="space-y-4">
+                <Typography variant="h6" color="default" className="text-white">
+                  Resources
+                </Typography>
+                <ul className="space-y-3">
+                  {footerLinks.resources.map((link, index) => (
+                    <li key={index}>
+                      <Link
+                        href={link.href}
+                        className="text-neutral-300 hover:text-white transition-colors text-sm"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </GridItem>
+          </Grid>
+        </Container>
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="border-t border-neutral-800 py-8">
+        <Container>
+          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+            <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
+              <Typography variant="body2" color="default" className="text-neutral-400">
+                © {new Date().getFullYear()} {brandConfig.name}. All rights reserved.
+              </Typography>
+              <div className="flex items-center space-x-4">
+                {footerLinks.legal.map((link, index) => (
+                  <Link
+                    key={index}
+                    href={link.href}
+                    className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  >
+                    {link.label}
+                  </Link>
                 ))}
-              </ul>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4 text-sm text-neutral-400">
+              <div className="flex items-center space-x-2">
+                <MapPin className="h-4 w-4" />
+                <span>Philippines</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Mail className="h-4 w-4" />
+                <span>support@linkvaultpro.com</span>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-800 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-gray-400 mb-4 md:mb-0">
-              <p>© 2025 Affiliate Hub. All rights reserved.</p>
-            </div>
-            <div className="flex space-x-6 text-sm">
-              <Link href="/privacy" className="text-gray-400 hover:text-white">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="text-gray-400 hover:text-white">
-                Terms of Service
-              </Link>
-              <Link href="/affiliate-disclosure" className="text-gray-400 hover:text-white">
-                Affiliate Disclosure
-              </Link>
-              <Link href="/contact" className="text-gray-400 hover:text-white">
-                Contact Us
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Affiliate Disclosure */}
-        <div className="border-t border-gray-800 py-4">
-          <p className="text-xs text-gray-500 text-center">
-            <span className="font-semibold">Affiliate Disclosure:</span> This website contains affiliate links. 
-            When you make a purchase through these links, we may earn a commission at no additional cost to you. 
-            This helps support our platform and allows us to continue providing free price comparison services.
-          </p>
-        </div>
+        </Container>
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;

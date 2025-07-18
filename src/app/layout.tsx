@@ -1,24 +1,65 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/navigation/Header';
+import ModernHeader from '@/components/navigation/ModernHeader';
 import Footer from '@/components/navigation/Footer';
+import MobileNavigation from '@/components/navigation/MobileNavigation';
 import AffiliateProductsProvider from '@/components/providers/MockProductsProvider';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { brandConfig } from '@/config/brand';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "Affiliate Hub - Best Deals from Multiple Platforms",
-  description: "Compare prices and find the best deals from Lazada, Shopee, TikTok Shop, Amazon, and AliExpress. Your one-stop affiliate shopping destination.",
+  title: `${brandConfig.name} - ${brandConfig.tagline}`,
+  description: brandConfig.description,
+  keywords: [
+    'affiliate marketing',
+    'product showcase',
+    'link management',
+    'analytics',
+    'e-commerce',
+    'Philippines',
+    'Lazada',
+    'Shopee',
+    'Amazon',
+    'TikTok Shop',
+  ],
+  authors: [{ name: brandConfig.name }],
+  creator: brandConfig.name,
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    title: `${brandConfig.name} - ${brandConfig.tagline}`,
+    description: brandConfig.description,
+    siteName: brandConfig.name,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${brandConfig.name} - ${brandConfig.tagline}`,
+    description: brandConfig.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -27,17 +68,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
+        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}
       >
-        <ThemeProvider>
+        <ThemeProvider defaultTheme="light" storageKey="linkvault-theme">
           <AffiliateProductsProvider>
-            <Header />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
+            <div className="relative flex min-h-screen flex-col">
+              <ModernHeader />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+              <MobileNavigation />
+            </div>
           </AffiliateProductsProvider>
         </ThemeProvider>
       </body>
