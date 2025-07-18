@@ -6,6 +6,7 @@ import Footer from '@/components/navigation/Footer';
 import MobileNavigation from '@/components/navigation/MobileNavigation';
 import AffiliateProductsProvider from '@/components/providers/MockProductsProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { brandConfig } from '@/config/brand';
 
 const inter = Inter({
@@ -73,16 +74,18 @@ export default function RootLayout({
         className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}
       >
         <ThemeProvider defaultTheme="light" storageKey="linkvault-theme">
-          <AffiliateProductsProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <ModernHeader />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-              <MobileNavigation />
-            </div>
-          </AffiliateProductsProvider>
+          <AuthProvider>
+            <AffiliateProductsProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <ModernHeader />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+                <MobileNavigation />
+              </div>
+            </AffiliateProductsProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
