@@ -169,9 +169,9 @@ export async function DELETE(
     }
 
     // Delete from auth (this will cascade to our tables due to foreign key constraints)
-    const { error: authError } = await supabase.auth.admin.deleteUser(params.id)
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(params.id)
 
-    if (authError) {
+    if (deleteError) {
       return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 })
     }
 

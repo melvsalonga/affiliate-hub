@@ -1,151 +1,202 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext, useContext } from 'react';
+import { cn } from '@/lib/utils';
+import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
 
-interface ToastProps {
+export interface ToastProps {
+  id: string;
+  title?: string;
   message: string;
-  type: 'success' | 'error' | 'info';
-  isVisible: boolean;
-  onClose: () => void;
+  type: 'success' | 'error' | 'info' | 'warning';
   duration?: number;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
-export function Toast({ message, type, isVisible, onClose, duration = 3000 }: ToastProps) {
-  const [isAnimating, setIsAnimating] = useState(false);
+interface ToastItemProps extends ToastProps {
+  onClose: (id: string) => void;
+}
+
+const ToastItem: React.FC<ToastItemProps> = ({
+  id,
+  title,
+  message,
+  type,
+  duration = 5000,
+  action,
+  onClose,
+}) => {
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (isVisible) {
-      setIsAnimating(true);
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-        setTimeout(onClose, 300); // Wait for fade out animation
-      }, duration);
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+      setTimeout(() => onClose(id), 300);
+    }, duration);
 
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, duration, onClose]);
+    return () => clearTimeout(timer);
+  }, [id, duration, onClose]);
 
-  if (!isVisible && !isAnimating) return null;
-
-  const getToastStyles = () => {
-    switch (type) {
-      case 'success':
-        return 'bg-green-50 border-green-200 text-green-800';
-      case 'error':
-        return 'bg-red-50 border-red-200 text-red-800';
-      case 'info':
-        return 'bg-blue-50 border-blue-200 text-blue-800';
-      default:
-        return 'bg-gray-50 border-gray-200 text-gray-800';
-    }
-  };
-
-  const getIconStyles = () => {
-    switch (type) {
-      case 'success':
-        return 'text-green-400';
-      case 'error':
-        return 'text-red-400';
-      case 'info':
-        return 'text-blue-400';
-      default:
-        return 'text-gray-400';
-    }
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(() => onClose(id), 300);
   };
 
   const getIcon = () => {
     switch (type) {
       case 'success':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
+        return <CheckCircle className="h-5 w-5 text-success-500" />;
       case 'error':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
+        return <XCircle className="h-5 w-5 text-error-500" />;
+      case 'warning':
+        return <AlertTriangle className="h-5 w-5 text-warning-500" />;
       case 'info':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
-      default:
-        return null;
+        return <Info className="h-5 w-5 text-primary-500" />;
+    }
+  };
+
+  const getStyles = () => {
+    switch (type) {
+      case 'success':
+        return 'border-success-200 bg-success-50 dark:bg-success-900/20 dark:border-success-800';
+      case 'error':
+        return 'border-error-200 bg-error-50 dark:bg-error-900/20 dark:border-error-800';
+      case 'warning':
+        return 'border-warning-200 bg-warning-50 dark:bg-warning-900/20 dark:border-warning-800';
+      case 'info':
+        return 'border-primary-200 bg-primary-50 dark:bg-primary-900/20 dark:border-primary-800';
     }
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50">
-      <div className={`
-        max-w-md w-full px-6 py-4 rounded-lg shadow-lg border-2 
-        ${getToastStyles()}
-        transform transition-all duration-300 ease-in-out
-        ${isAnimating ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
-      `}>
-        <div className="flex items-center">
-          <div className={`flex-shrink-0 ${getIconStyles()}`}>
+    <div
+      className={cn(
+        'pointer-events-auto w-full max-w-sm overflow-hidden rounded-xl border shadow-lg transition-all duration-300',
+        'transform-gpu',
+        isVisible 
+          ? 'translate-x-0 opacity-100 scale-100' 
+          : 'translate-x-full opacity-0 scale-95',
+        getStyles()
+      )}
+    >
+      <div className="p-4">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
             {getIcon()}
           </div>
-          <div className="ml-3 flex-1">
-            <p className="text-sm font-medium">{message}</p>
+          <div className="ml-3 w-0 flex-1">
+            {title && (
+              <p className="text-sm font-semibold text-foreground">
+                {title}
+              </p>
+            )}
+            <p className={cn(
+              "text-sm text-muted-foreground",
+              !title && "text-foreground"
+            )}>
+              {message}
+            </p>
+            {action && (
+              <div className="mt-3">
+                <button
+                  onClick={action.onClick}
+                  className={cn(
+                    "text-sm font-medium underline-offset-4 hover:underline",
+                    type === 'success' && "text-success-600 dark:text-success-400",
+                    type === 'error' && "text-error-600 dark:text-error-400",
+                    type === 'warning' && "text-warning-600 dark:text-warning-400",
+                    type === 'info' && "text-primary-600 dark:text-primary-400"
+                  )}
+                >
+                  {action.label}
+                </button>
+              </div>
+            )}
           </div>
-          <div className="ml-4 flex-shrink-0">
+          <div className="ml-4 flex flex-shrink-0">
             <button
-              onClick={onClose}
-              className="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none"
+              onClick={handleClose}
+              className="inline-flex rounded-md text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>
       </div>
     </div>
   );
+};
+
+// Toast Context
+interface ToastContextType {
+  addToast: (toast: Omit<ToastProps, 'id'>) => void;
+  removeToast: (id: string) => void;
+  toasts: ToastProps[];
 }
 
-// Toast manager hook
-export function useToast() {
-  const [toasts, setToasts] = useState<Array<{
-    id: string;
-    message: string;
-    type: 'success' | 'error' | 'info';
-    isVisible: boolean;
-  }>>([]);
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info') => {
-    const id = Date.now().toString();
-    setToasts(prev => [...prev, { id, message, type, isVisible: true }]);
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [toasts, setToasts] = useState<ToastProps[]>([]);
+
+  const addToast = (toast: Omit<ToastProps, 'id'>) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setToasts(prev => [...prev, { ...toast, id }]);
   };
 
-  const hideToast = (id: string) => {
+  const removeToast = (id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
 
-  const ToastContainer = () => (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+  return (
+    <ToastContext.Provider value={{ addToast, removeToast, toasts }}>
+      {children}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+    </ToastContext.Provider>
+  );
+};
+
+// Toast Container Component
+interface ToastContainerProps {
+  toasts: ToastProps[];
+  onClose: (id: string) => void;
+}
+
+const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onClose }) => {
+  return (
+    <div className="fixed top-4 right-4 z-50 space-y-2 pointer-events-none">
       {toasts.map(toast => (
-        <Toast
+        <ToastItem
           key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          isVisible={toast.isVisible}
-          onClose={() => hideToast(toast.id)}
+          {...toast}
+          onClose={onClose}
         />
       ))}
     </div>
   );
+};
+
+// Toast Hook
+export const useToast = () => {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+
+  const { addToast } = context;
 
   return {
-    showToast,
-    ToastContainer,
-    showSuccess: (message: string) => showToast(message, 'success'),
-    showError: (message: string) => showToast(message, 'error'),
-    showInfo: (message: string) => showToast(message, 'info'),
+    toast: addToast,
+    success: (message: string, options?: Partial<Omit<ToastProps, 'id' | 'type' | 'message'>>) =>
+      addToast({ message, type: 'success', ...options }),
+    error: (message: string, options?: Partial<Omit<ToastProps, 'id' | 'type' | 'message'>>) =>
+      addToast({ message, type: 'error', ...options }),
+    info: (message: string, options?: Partial<Omit<ToastProps, 'id' | 'type' | 'message'>>) =>
+      addToast({ message, type: 'info', ...options }),
+    warning: (message: string, options?: Partial<Omit<ToastProps, 'id' | 'type' | 'message'>>) =>
+      addToast({ message, type: 'warning', ...options }),
   };
-}
+};

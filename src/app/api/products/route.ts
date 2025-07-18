@@ -1,115 +1,121 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { productAffiliateService } from '@/services/productAffiliateService';
-import { Product } from '@/types/product';
+import { productRepository } from '@/lib/repositories/product';
+import { createProductSchema, updateProductSchema } from '@/lib/validations/product';
+import { createClient } from '@/lib/supabase/server';
+import { validateRequest, handleApiError } from '@/lib/api/utils';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     
     // Extract query parameters
-  const query = searchParams.get('q')?.toLowerCase() || '';
-  const platform = searchParams.get('platform') || '';
-  const category = searchParams.get('category') || '';
-  const minPrice = searchParams.get('minPrice');
-  const maxPrice = searchParams.get('maxPrice');
-  const sortBy = searchParams.get('sortBy') || 'relevance';
-  const limit = parseInt(searchParams.get('limit') || '20');
-  const offset = parseInt(searchParams.get('offset') || '0');
+    const search = searchParams.get('q') || undefined;
+    const categoryId = searchParams.get('categoryId') || undefined;
+    const status = searchParams.get('status') as 'ACTIVE' | 'INACTIVE' | 'DRAFT' | 'SCHEDULED' || undefined;
+    const isActive = searchParams.get('isActive') ? searchParams.get('isActive') === 'true' : undefined;
+    const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : undefined;
+    const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
+    const tags = searchParams.get('tags')?.split(',') || undefined;
+    const createdBy = searchParams.get('createdBy') || undefined;
+    
+    // Pagination
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    
+    // Sorting
+    const sortField = searchParams.get('sortBy') || 'createdAt';
+    const sortDirection = searchParams.get('sortOrder') as 'asc' | 'desc' || 'desc';
 
-  // Get all affiliate products
-  let products = productAffiliateService.getAffiliateProducts();
+    // Build filters
+    const filters = {
+      search,
+      categoryId,
+      status,
+      isActive,
+      minPrice,
+      maxPrice,
+      tags,
+      createdBy
+    };
 
-  // Filter by platform if specified
-  if (platform && platform !== 'all') {
-    products = products.filter(p => p.platform.id === platform);
-  }
+    // Remove undefined values
+    Object.keys(filters).forEach(key => {
+      if (filters[key as keyof typeof filters] === undefined) {
+        delete filters[key as keyof typeof filters];
+      }
+    });
 
-    // Filter by search query
-    if (query) {
-      products = products.filter(product =>
-        product.name.toLowerCase().includes(query) ||
-        product.description.toLowerCase().includes(query) ||
-        (product.brand && product.brand.toLowerCase().includes(query)) ||
-        product.category.toLowerCase().includes(query)
-      );
-    }
+    const sort = {
+      field: sortField,
+      direction: sortDirection
+    };
 
-    // Filter by category
-    if (category) {
-      products = products.filter(product => product.category === category);
-    }
-
-    // Filter by price range
-    if (minPrice) {
-      const min = parseFloat(minPrice);
-      products = products.filter(product => product.price >= min);
-    }
-    if (maxPrice) {
-      const max = parseFloat(maxPrice);
-      products = products.filter(product => product.price <= max);
-    }
-
-    // Sort products
-    switch (sortBy) {
-      case 'price-asc':
-        products.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        products.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        products.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        break;
-      case 'discount':
-        products.sort((a, b) => (b.discount || 0) - (a.discount || 0));
-        break;
-      case 'newest':
-        products.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-        break;
-      case 'popular':
-        products.sort((a, b) => (b.reviewCount || 0) - (a.reviewCount || 0));
-        break;
-      default:
-        // Keep original order for relevance
-        break;
-    }
-
-    // Apply pagination
-    const total = products.length;
-    const paginatedProducts = products.slice(offset, offset + limit);
+    const result = await productRepository.findMany(filters, sort, page, limit);
 
     return NextResponse.json({
       success: true,
-      data: {
-        products: paginatedProducts,
-        pagination: {
-          total,
-          limit,
-          offset,
-          hasMore: offset + limit < total,
-          totalPages: Math.ceil(total / limit),
-          currentPage: Math.floor(offset / limit) + 1
-        },
-        filters: {
-          query,
-          platform,
-          category,
-          minPrice,
-          maxPrice,
-          sortBy
-        }
+      data: result.data,
+      pagination: result.pagination,
+      filters: {
+        search,
+        categoryId,
+        status,
+        isActive,
+        minPrice,
+        maxPrice,
+        tags,
+        createdBy,
+        sortBy: sortField,
+        sortOrder: sortDirection
       }
     });
 
   } catch (error) {
-    console.error('API Error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Internal server error',
-        message: 'Failed to fetch products'
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user has permission to create products
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!userData || !['ADMIN', 'EDITOR'].includes(userData.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const validatedData = await validateRequest(createProductSchema, body);
+
+    // Add creator information
+    const productData = {
+      ...validatedData,
+      product: {
+        ...validatedData.product,
+        createdBy: user.id
+      }
+    };
+
+    const product = await productRepository.create(productData);
+
+    return NextResponse.json({
+      success: true,
+      data: product,
+      message: 'Product created successfully'
+    }, { status: 201 });
+
+  } catch (error) {
+    return handleApiError(error);
   }
 }

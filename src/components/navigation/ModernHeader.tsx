@@ -61,11 +61,11 @@ export default function ModernHeader() {
   };
 
   const navigationItems = [
-    { href: '/', label: 'Home', icon: '🏠' },
-    { href: '/categories', label: 'Categories', icon: '📱' },
+    { href: '/', label: 'Home', icon: '🏠' as const },
+    { href: '/categories', label: 'Categories', icon: '📱' as const },
     { href: '/favorites', label: 'Favorites', icon: Heart, count: favoriteCount },
     { href: '/alerts', label: 'Alerts', icon: Bell, count: alertCount },
-    { href: '/admin', label: 'Admin', icon: '⚙️' },
+    { href: '/admin', label: 'Admin', icon: '⚙️' as const },
   ];
 
   return (

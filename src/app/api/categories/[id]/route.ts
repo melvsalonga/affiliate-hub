@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { productRepository } from '@/lib/repositories/product';
-import { updateProductSchema } from '@/lib/validations/product';
+import { categoryRepository } from '@/lib/repositories/product';
+import { updateCategorySchema } from '@/lib/validations/product';
 import { handleApiError, validateRequest, authenticateRequest, checkUserPermissions } from '@/lib/api/utils';
 
 export async function GET(
@@ -9,37 +9,28 @@ export async function GET(
 ) {
   try {
     const { id } = params;
+    const { searchParams } = new URL(request.url);
+    const includeChildren = searchParams.get('includeChildren') === 'true';
 
-    const product = await productRepository.findWithRelations(id);
+    let category;
+    
+    if (includeChildren) {
+      category = await categoryRepository.findWithChildren(id);
+    } else {
+      category = await categoryRepository.findById(id);
+    }
 
-    if (!product) {
+    if (!category) {
       return NextResponse.json({
         success: false,
         error: 'Not Found',
-        message: `Product with ID "${id}" does not exist`
+        message: `Category with ID "${id}" does not exist`
       }, { status: 404 });
     }
 
-    // Get related products (same category, different products)
-    const relatedProducts = await productRepository.findByCategory(product.categoryId, 1, 4);
-    const filteredRelated = relatedProducts.data.filter(p => p.id !== product.id);
-
     return NextResponse.json({
       success: true,
-      data: {
-        product,
-        relatedProducts: filteredRelated,
-        metadata: {
-          category: product.category.name,
-          categorySlug: product.category.slug,
-          lastUpdated: product.updatedAt,
-          status: product.status,
-          isActive: product.isActive,
-          totalImages: product.images.length,
-          totalAffiliateLinks: product.affiliateLinks.length,
-          totalTags: product.tags.length
-        }
-      }
+      data: category
     });
 
   } catch (error) {
@@ -65,14 +56,14 @@ export async function PUT(
 
     const { id } = params;
     const body = await request.json();
-    const validatedData = await validateRequest(updateProductSchema, body);
+    const validatedData = await validateRequest(updateCategorySchema, body);
 
-    const updatedProduct = await productRepository.update(id, validatedData);
+    const updatedCategory = await categoryRepository.update(id, validatedData);
 
     return NextResponse.json({
       success: true,
-      data: updatedProduct,
-      message: 'Product updated successfully'
+      data: updatedCategory,
+      message: 'Category updated successfully'
     });
 
   } catch (error) {
@@ -97,11 +88,22 @@ export async function DELETE(
     }
 
     const { id } = params;
-    await productRepository.delete(id);
+    
+    // Check if category has children or products
+    const categoryWithChildren = await categoryRepository.findWithChildren(id);
+    if (categoryWithChildren?.children && categoryWithChildren.children.length > 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'Conflict',
+        message: 'Cannot delete category with subcategories. Please delete or move subcategories first.'
+      }, { status: 409 });
+    }
+
+    await categoryRepository.delete(id);
 
     return NextResponse.json({
       success: true,
-      message: 'Product deleted successfully'
+      message: 'Category deleted successfully'
     });
 
   } catch (error) {

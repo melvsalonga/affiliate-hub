@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { productRepository } from '@/lib/repositories/product';
-import { updateProductSchema } from '@/lib/validations/product';
+import { tagRepository } from '@/lib/repositories/product';
+import { updateTagSchema } from '@/lib/validations/product';
 import { handleApiError, validateRequest, authenticateRequest, checkUserPermissions } from '@/lib/api/utils';
 
 export async function GET(
@@ -9,37 +9,19 @@ export async function GET(
 ) {
   try {
     const { id } = params;
+    const tag = await tagRepository.findById(id);
 
-    const product = await productRepository.findWithRelations(id);
-
-    if (!product) {
+    if (!tag) {
       return NextResponse.json({
         success: false,
         error: 'Not Found',
-        message: `Product with ID "${id}" does not exist`
+        message: `Tag with ID "${id}" does not exist`
       }, { status: 404 });
     }
 
-    // Get related products (same category, different products)
-    const relatedProducts = await productRepository.findByCategory(product.categoryId, 1, 4);
-    const filteredRelated = relatedProducts.data.filter(p => p.id !== product.id);
-
     return NextResponse.json({
       success: true,
-      data: {
-        product,
-        relatedProducts: filteredRelated,
-        metadata: {
-          category: product.category.name,
-          categorySlug: product.category.slug,
-          lastUpdated: product.updatedAt,
-          status: product.status,
-          isActive: product.isActive,
-          totalImages: product.images.length,
-          totalAffiliateLinks: product.affiliateLinks.length,
-          totalTags: product.tags.length
-        }
-      }
+      data: tag
     });
 
   } catch (error) {
@@ -65,14 +47,14 @@ export async function PUT(
 
     const { id } = params;
     const body = await request.json();
-    const validatedData = await validateRequest(updateProductSchema, body);
+    const validatedData = await validateRequest(updateTagSchema, body);
 
-    const updatedProduct = await productRepository.update(id, validatedData);
+    const updatedTag = await tagRepository.update(id, validatedData);
 
     return NextResponse.json({
       success: true,
-      data: updatedProduct,
-      message: 'Product updated successfully'
+      data: updatedTag,
+      message: 'Tag updated successfully'
     });
 
   } catch (error) {
@@ -97,11 +79,11 @@ export async function DELETE(
     }
 
     const { id } = params;
-    await productRepository.delete(id);
+    await tagRepository.delete(id);
 
     return NextResponse.json({
       success: true,
-      message: 'Product deleted successfully'
+      message: 'Tag deleted successfully'
     });
 
   } catch (error) {
