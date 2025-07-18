@@ -26,7 +26,7 @@ The database schema includes:
 2. Copy your project URL and anon key
 3. Update your `.env` file:
    ```env
-   DATABASE_URL="postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres"
+   DATABASE_URL="postgresql://postgres:TjpgBImWt9wq0WOS@db.wrtlsaivhxmzymbmtkrf.supabase.co:5432/postgres"
    NEXT_PUBLIC_SUPABASE_URL="https://[project-ref].supabase.co"
    NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
    ```
