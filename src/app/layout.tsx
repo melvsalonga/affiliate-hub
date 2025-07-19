@@ -7,7 +7,9 @@ import MobileNavigation from '@/components/navigation/MobileNavigation';
 import AffiliateProductsProvider from '@/components/providers/MockProductsProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { PWAProvider } from '@/components/providers/PWAProvider';
 import { brandConfig } from '@/config/brand';
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -61,6 +63,15 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: brandConfig.name,
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
@@ -74,18 +85,31 @@ export default function RootLayout({
         className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}
       >
         <ThemeProvider defaultTheme="light" storageKey="linkvault-theme">
-          <AuthProvider>
-            <AffiliateProductsProvider>
-              <div className="relative flex min-h-screen flex-col">
-                <ModernHeader />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-                <MobileNavigation />
-              </div>
-            </AffiliateProductsProvider>
-          </AuthProvider>
+          <PWAProvider>
+            <AuthProvider>
+              <AffiliateProductsProvider>
+                <div className="relative flex min-h-screen flex-col">
+                  <ModernHeader />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  <Footer />
+                  <MobileNavigation />
+                </div>
+                <Toaster 
+                  position="top-right"
+                  toastOptions={{
+                    duration: 4000,
+                    style: {
+                      background: 'var(--background)',
+                      color: 'var(--foreground)',
+                      border: '1px solid var(--border)',
+                    },
+                  }}
+                />
+              </AffiliateProductsProvider>
+            </AuthProvider>
+          </PWAProvider>
         </ThemeProvider>
       </body>
     </html>

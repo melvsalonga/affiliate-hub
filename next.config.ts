@@ -1,6 +1,123 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Enable experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'recharts'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+  
+  // Optimize bundle splitting
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+          recharts: {
+            test: /[\\/]node_modules[\\/]recharts[\\/]/,
+            name: 'recharts',
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+          lucide: {
+            test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+            name: 'lucide',
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+        },
+      }
+    }
+    return config
+  },
+
+  // Compression and optimization
+  compress: true,
+  poweredByHeader: false,
+  
+  // CDN and asset optimization
+  assetPrefix: process.env.CDN_URL || '',
+  
+  // Static file optimization
+  generateEtags: true,
+  
+  // Headers for performance
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin'
+          }
+        ]
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, stale-while-revalidate=60'
+          }
+        ]
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      },
+      {
+        source: '/images/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400'
+          }
+        ]
+      }
+    ]
+  },
+  
   images: {
     remotePatterns: [
       {

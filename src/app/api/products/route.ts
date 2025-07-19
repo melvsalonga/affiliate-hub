@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { productRepository } from '@/lib/repositories/product';
-import { createProductSchema, updateProductSchema } from '@/lib/validations/product';
+import { createProductSchema } from '@/lib/validations/product';
 import { createClient } from '@/lib/supabase/server';
 import { validateRequest, handleApiError } from '@/lib/api/utils';
+import { withApiCache, apiCacheConfigs } from '@/lib/cache/middleware';
+import { cacheInvalidation } from '@/lib/cache/utils';
 
-export async function GET(request: NextRequest) {
+// Apply caching to GET requests
+const cachedGET = withApiCache(apiCacheConfigs.products)(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
     
@@ -73,7 +76,9 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return handleApiError(error);
   }
-}
+})
+
+export const GET = cachedGET
 
 export async function POST(request: NextRequest) {
   try {
@@ -98,16 +103,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = await validateRequest(createProductSchema, body);
 
-    // Add creator information
-    const productData = {
-      ...validatedData,
-      product: {
-        ...validatedData.product,
-        createdBy: user.id
-      }
-    };
+    const product = await productRepository.create(validatedData);
 
-    const product = await productRepository.create(productData);
+    // Invalidate product caches after successful creation
+    await cacheInvalidation.invalidateProductLists();
+    await cacheInvalidation.invalidateSearch();
 
     return NextResponse.json({
       success: true,

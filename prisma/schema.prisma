@@ -26,6 +26,7 @@ model User {
   products Product[]
   categories Category[]
   campaigns Campaign[]
+  content Content[]
   
   @@map("users")
 }
@@ -326,4 +327,55 @@ enum ConversionStatus {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+// SEO and Redirect Management
+model Redirect {
+  id         String   @id @default(uuid()) @db.Uuid
+  fromPath   String   @unique @map("from_path")
+  toPath     String   @map("to_path")
+  statusCode Int      @map("status_code") @default(301)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  
+  @@map("redirects")
+}
+
+model Content {
+  id              String        @id @default(uuid()) @db.Uuid
+  title           String
+  slug            String        @unique
+  content         String
+  excerpt         String?
+  type            ContentType   @default(ARTICLE)
+  status          ContentStatus @default(DRAFT)
+  
+  // SEO
+  metaTitle       String?       @map("meta_title")
+  metaDescription String?       @map("meta_description")
+  keywords        String[]
+  
+  // Publishing
+  publishedAt     DateTime?     @map("published_at") @db.Timestamptz
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  
+  // Author
+  authorId        String        @map("author_id") @db.Uuid
+  author          User          @relation(fields: [authorId], references: [id])
+  
+  @@map("content")
+}
+
+enum ContentType {
+  ARTICLE
+  REVIEW
+  COMPARISON
+  BUYING_GUIDE
+  PAGE
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }

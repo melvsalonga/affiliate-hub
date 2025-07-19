@@ -1,8 +1,21 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { handleRedirects, normalizeTrailingSlash, handleCanonicalRedirects } from '@/middleware/redirect-handler';
 
 export async function middleware(req: NextRequest) {
+  // Handle canonical redirects first (www, https)
+  const canonicalRedirect = handleCanonicalRedirects(req);
+  if (canonicalRedirect) return canonicalRedirect;
+
+  // Handle trailing slash normalization
+  const trailingSlashRedirect = normalizeTrailingSlash(req);
+  if (trailingSlashRedirect) return trailingSlashRedirect;
+
+  // Handle custom redirects
+  const customRedirect = await handleRedirects(req);
+  if (customRedirect) return customRedirect;
+
   let res = NextResponse.next();
 
   const supabase = createServerClient(
@@ -117,12 +130,13 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all admin routes except:
+     * Match all routes for redirect handling and admin protection except:
      * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
     '/admin/:path*',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
