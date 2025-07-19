@@ -27,6 +27,7 @@ model User {
   categories Category[]
   campaigns Campaign[]
   content Content[]
+  notificationLogs NotificationLog[]
   
   @@map("users")
 }
@@ -46,6 +47,12 @@ model UserProfile {
   // Notification settings
   emailNotifications EmailNotificationSettings?
   pushNotifications  PushNotificationSettings?
+  
+  // Push notification subscription
+  pushSubscription   PushSubscription?
+  
+  // Price alerts
+  priceAlerts        PriceAlert[]
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
@@ -149,6 +156,7 @@ model Product {
   affiliateLinks   AffiliateLink[]
   tags             ProductTag[]
   analytics        ProductAnalytics?
+  priceAlerts      PriceAlert[]
   
   @@map("products")
 }
@@ -378,4 +386,66 @@ enum ContentStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+// Push Notification Management
+model PushSubscription {
+  id            String   @id @default(uuid()) @db.Uuid
+  userProfileId String   @unique @map("user_profile_id") @db.Uuid
+  endpoint      String
+  p256dhKey     String   @map("p256dh_key")
+  authKey       String   @map("auth_key")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  
+  @@map("push_subscriptions")
+}
+
+model NotificationLog {
+  id               String   @id @default(uuid()) @db.Uuid
+  type             String   // 'push', 'email', 'sms'
+  title            String
+  body             String
+  recipientsCount  Int      @default(0) @map("recipients_count")
+  successfulCount  Int      @default(0) @map("successful_count")
+  failedCount      Int      @default(0) @map("failed_count")
+  sentBy           String?  @map("sent_by") @db.Uuid
+  sentAt           DateTime @default(now()) @map("sent_at") @db.Timestamptz
+  
+  sender           User?    @relation(fields: [sentBy], references: [id])
+  
+  @@map("notification_logs")
+}
+
+// Price Alert Management
+model PriceAlert {
+  id            String    @id @default(uuid()) @db.Uuid
+  userProfileId String    @map("user_profile_id") @db.Uuid
+  productId     String    @map("product_id") @db.Uuid
+  targetPrice   Decimal   @map("target_price") @db.Decimal(10,2)
+  currentPrice  Decimal   @map("current_price") @db.Decimal(10,2)
+  isActive      Boolean   @default(true) @map("is_active")
+  triggeredAt   DateTime? @map("triggered_at") @db.Timestamptz
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  logs          PriceAlertLog[]
+  
+  @@unique([userProfileId, productId])
+  @@map("price_alerts")
+}
+
+model PriceAlertLog {
+  id             String    @id @default(uuid()) @db.Uuid
+  priceAlertId   String    @map("price_alert_id") @db.Uuid
+  triggeredPrice Decimal   @map("triggered_price") @db.Decimal(10,2)
+  targetPrice    Decimal   @map("target_price") @db.Decimal(10,2)
+  triggeredAt    DateTime  @default(now()) @map("triggered_at") @db.Timestamptz
+  
+  priceAlert     PriceAlert @relation(fields: [priceAlertId], references: [id], onDelete: Cascade)
+  
+  @@map("price_alert_logs")
 }

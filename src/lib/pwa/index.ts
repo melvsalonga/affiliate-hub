@@ -1,4 +1,3 @@
-// PWA utilities exports
 export {
   ServiceWorkerManager,
   PWAInstallManager,

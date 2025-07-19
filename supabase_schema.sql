@@ -578,3 +578,89 @@ INSERT INTO platforms (name, display_name, base_url, logo_url) VALUES
 ('tiktok', 'TikTok Shop', 'https://shop.tiktok.com', null),
 ('aliexpress', 'AliExpress', 'https://aliexpress.com', null)
 ON CONFLICT (name) DO NOTHING;
+
+-- Push Notification Tables
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_profile_id UUID NOT NULL UNIQUE REFERENCES user_profiles(id) ON DELETE CASCADE,
+    endpoint TEXT NOT NULL,
+    p256dh_key TEXT NOT NULL,
+    auth_key TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS notification_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    type VARCHAR(50) NOT NULL, -- 'push', 'email', 'sms'
+    title VARCHAR(255) NOT NULL,
+    body TEXT NOT NULL,
+    recipients_count INTEGER NOT NULL DEFAULT 0,
+    successful_count INTEGER NOT NULL DEFAULT 0,
+    failed_count INTEGER NOT NULL DEFAULT 0,
+    sent_by UUID REFERENCES users(id),
+    sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Price Alert Tables
+CREATE TABLE IF NOT EXISTS price_alerts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_profile_id UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+    product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    target_price DECIMAL(10,2) NOT NULL,
+    current_price DECIMAL(10,2) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    triggered_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_profile_id, product_id)
+);
+
+CREATE TABLE IF NOT EXISTS price_alert_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    price_alert_id UUID NOT NULL REFERENCES price_alerts(id) ON DELETE CASCADE,
+    triggered_price DECIMAL(10,2) NOT NULL,
+    target_price DECIMAL(10,2) NOT NULL,
+    triggered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_profile ON push_subscriptions(user_profile_id);
+CREATE INDEX IF NOT EXISTS idx_price_alerts_user_product ON price_alerts(user_profile_id, product_id);
+CREATE INDEX IF NOT EXISTS idx_price_alerts_active ON price_alerts(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_notification_logs_sent_at ON notification_logs(sent_at DESC);
+
+-- Row Level Security Policies
+ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE price_alerts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE price_alert_logs ENABLE ROW LEVEL SECURITY;
+
+-- Push subscriptions are viewable/editable by owner
+CREATE POLICY "Push subscriptions are viewable by owner" ON push_subscriptions
+    FOR ALL USING (auth.uid() = (SELECT user_id FROM user_profiles WHERE id = user_profile_id));
+
+-- Notification logs are viewable by admins only
+CREATE POLICY "Notification logs are viewable by admins" ON notification_logs
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM users 
+            WHERE id = auth.uid() 
+            AND role = 'ADMIN'
+        )
+    );
+
+-- Price alerts are viewable/editable by owner
+CREATE POLICY "Price alerts are viewable by owner" ON price_alerts
+    FOR ALL USING (auth.uid() = (SELECT user_id FROM user_profiles WHERE id = user_profile_id));
+
+-- Price alert logs are viewable by owner
+CREATE POLICY "Price alert logs are viewable by owner" ON price_alert_logs
+    FOR SELECT USING (
+        auth.uid() = (
+            SELECT up.user_id 
+            FROM user_profiles up
+            JOIN price_alerts pa ON pa.user_profile_id = up.id
+            WHERE pa.id = price_alert_logs.price_alert_id
+        )
+    );
