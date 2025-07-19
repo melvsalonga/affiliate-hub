@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { productRepository } from '@/lib/repositories/product';
 import { updateProductSchema } from '@/lib/validations/product';
 import { handleApiError, validateRequest, authenticateRequest, checkUserPermissions } from '@/lib/api/utils';
+import { WebhookTriggers } from '@/lib/webhooks/triggers';
 
 export async function GET(
   request: NextRequest,
@@ -67,7 +68,27 @@ export async function PUT(
     const body = await request.json();
     const validatedData = await validateRequest(updateProductSchema, body);
 
+    // Get original product for comparison
+    const originalProduct = await productRepository.findById(id);
+    if (!originalProduct) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
     const updatedProduct = await productRepository.update(id, validatedData);
+
+    // Trigger webhook for product updated event
+    const changes = Object.keys(validatedData).reduce((acc, key) => {
+      const oldValue = originalProduct[key as keyof typeof originalProduct];
+      const newValue = validatedData[key as keyof typeof validatedData];
+      if (oldValue !== newValue) {
+        acc[key] = { from: oldValue, to: newValue };
+      }
+      return acc;
+    }, {} as Record<string, any>);
+
+    if (Object.keys(changes).length > 0) {
+      await WebhookTriggers.productUpdated(updatedProduct, changes);
+    }
 
     return NextResponse.json({
       success: true,
@@ -97,7 +118,22 @@ export async function DELETE(
     }
 
     const { id } = params;
+    
+    // Get product data before deletion for webhook
+    const productToDelete = await productRepository.findById(id);
+    if (!productToDelete) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
     await productRepository.delete(id);
+
+    // Trigger webhook for product deleted event
+    await WebhookTriggers.productDeleted(id, {
+      title: productToDelete.title,
+      slug: productToDelete.slug,
+      status: productToDelete.status,
+      categoryId: productToDelete.categoryId,
+    });
 
     return NextResponse.json({
       success: true,

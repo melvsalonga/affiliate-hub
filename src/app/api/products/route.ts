@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/server';
 import { validateRequest, handleApiError } from '@/lib/api/utils';
 import { withApiCache, apiCacheConfigs } from '@/lib/cache/middleware';
 import { cacheInvalidation } from '@/lib/cache/utils';
+import { WebhookTriggers } from '@/lib/webhooks/triggers';
+import { SocialMediaService } from '@/lib/services/social-media';
 
 // Apply caching to GET requests
 const cachedGET = withApiCache(apiCacheConfigs.products)(async (request: NextRequest) => {
@@ -104,6 +106,19 @@ export async function POST(request: NextRequest) {
     const validatedData = await validateRequest(createProductSchema, body);
 
     const product = await productRepository.create(validatedData);
+
+    // Trigger webhook for product created event
+    await WebhookTriggers.productCreated(product);
+
+    // Auto-share new products to social media if enabled
+    try {
+      const autoSharePlatforms = process.env.AUTO_SHARE_PLATFORMS?.split(',') || [];
+      if (autoSharePlatforms.length > 0) {
+        await SocialMediaService.shareProduct(product, autoSharePlatforms);
+      }
+    } catch (error) {
+      console.error('Failed to auto-share product to social media:', error);
+    }
 
     // Invalidate product caches after successful creation
     await cacheInvalidation.invalidateProductLists();

@@ -28,6 +28,7 @@ model User {
   campaigns Campaign[]
   content Content[]
   notificationLogs NotificationLog[]
+  webhooks Webhook[]
   
   @@map("users")
 }
@@ -626,4 +627,72 @@ enum IntelligenceStatus {
   ACTIVE
   ARCHIVED
   UNDER_REVIEW
+}
+
+// Webhook System
+model Webhook {
+  id            String        @id @default(uuid()) @db.Uuid
+  name          String
+  description   String?
+  url           String
+  secret        String?       // For webhook signature verification
+  events        WebhookEvent[] @map("events")
+  isActive      Boolean       @default(true) @map("is_active")
+  retryAttempts Int           @default(3) @map("retry_attempts")
+  timeout       Int           @default(30) // seconds
+  headers       Json?         // Custom headers as JSON object
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  createdBy     String        @map("created_by") @db.Uuid
+  
+  // Relationships
+  creator       User          @relation(fields: [createdBy], references: [id])
+  deliveries    WebhookDelivery[]
+  
+  @@map("webhooks")
+}
+
+model WebhookDelivery {
+  id            String              @id @default(uuid()) @db.Uuid
+  webhookId     String              @map("webhook_id") @db.Uuid
+  event         WebhookEvent
+  payload       Json
+  httpStatus    Int?                @map("http_status")
+  responseBody  String?             @map("response_body")
+  responseTime  Int?                @map("response_time") // milliseconds
+  attempt       Int                 @default(1)
+  status        WebhookDeliveryStatus @default(PENDING)
+  errorMessage  String?             @map("error_message")
+  deliveredAt   DateTime?           @map("delivered_at") @db.Timestamptz
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  nextRetryAt   DateTime?           @map("next_retry_at") @db.Timestamptz
+  
+  // Relationships
+  webhook       Webhook             @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  
+  @@index([webhookId, createdAt])
+  @@index([status, nextRetryAt])
+  @@map("webhook_deliveries")
+}
+
+enum WebhookEvent {
+  PRODUCT_CREATED
+  PRODUCT_UPDATED
+  PRODUCT_DELETED
+  PRODUCT_STATUS_CHANGED
+  LINK_CLICKED
+  CONVERSION_TRACKED
+  USER_REGISTERED
+  USER_UPDATED
+  CAMPAIGN_STARTED
+  CAMPAIGN_ENDED
+  PRICE_ALERT_TRIGGERED
+  ANALYTICS_MILESTONE
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  RETRYING
 }

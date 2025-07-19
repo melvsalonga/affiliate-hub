@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { EmailMarketingService } from '@/lib/services/email-marketing'
+import { WebhookTriggers } from '@/lib/webhooks/triggers'
 import webpush from 'web-push'
 
 // Configure web-push
@@ -102,6 +104,40 @@ export async function POST(request: NextRequest) {
             }
           )
         }
+
+        // Get user email for email notification
+        const { data: userData } = await supabase
+          .from('users')
+          .select('email')
+          .eq('id', alert.user_profiles.user_id)
+          .single()
+
+        // Send email notification
+        if (userData?.email) {
+          try {
+            await EmailMarketingService.sendPriceAlert(
+              userData.email,
+              alert.products,
+              alert.target_price,
+              alert.products.current_price
+            )
+          } catch (emailError) {
+            console.error('Failed to send price alert email:', emailError)
+          }
+        }
+
+        // Trigger webhook for price alert
+        await WebhookTriggers.priceAlertTriggered({
+          id: alert.id,
+          targetPrice: alert.target_price,
+          currentPrice: alert.products.current_price,
+          triggeredAt: new Date().toISOString(),
+          product: alert.products,
+          userProfile: {
+            userId: alert.user_profiles.user_id,
+            user: userData,
+          },
+        })
 
         // Mark alert as triggered
         await supabase

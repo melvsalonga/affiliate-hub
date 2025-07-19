@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { productRepository } from '@/lib/repositories/product';
 import { handleApiError, authenticateRequest, checkUserPermissions } from '@/lib/api/utils';
+import { WebhookTriggers } from '@/lib/webhooks/triggers';
 import { z } from 'zod';
 
 const statusUpdateSchema = z.object({
@@ -29,6 +30,13 @@ export async function PUT(
     const body = await request.json();
     const { status, publishedAt, scheduledFor } = statusUpdateSchema.parse(body);
 
+    // Get current product to track status change
+    const currentProduct = await productRepository.findById(id);
+    if (!currentProduct) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    const oldStatus = currentProduct.status;
     const updateData: any = { status };
 
     // Handle status-specific logic
@@ -60,6 +68,11 @@ export async function PUT(
     const updatedProduct = await productRepository.update(id, {
       product: updateData
     });
+
+    // Trigger webhook for status change if status actually changed
+    if (oldStatus !== status) {
+      await WebhookTriggers.productStatusChanged(updatedProduct, oldStatus, status);
+    }
 
     return NextResponse.json({
       success: true,

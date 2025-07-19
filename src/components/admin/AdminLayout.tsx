@@ -21,7 +21,12 @@ import {
   Target,
   Link2,
   FileText,
-  Zap
+  Zap,
+  Webhook,
+  Mail,
+  Share2,
+  Puzzle,
+  Flag
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -97,6 +102,36 @@ const navigationItems: NavigationItem[] = [
     label: 'SEO', 
     icon: Zap,
     requiredRoles: ['ADMIN', 'EDITOR']
+  },
+  { 
+    href: '/admin/email-marketing', 
+    label: 'Email Marketing', 
+    icon: Mail,
+    requiredRoles: ['ADMIN', 'EDITOR']
+  },
+  { 
+    href: '/admin/social-media', 
+    label: 'Social Media', 
+    icon: Share2,
+    requiredRoles: ['ADMIN', 'EDITOR']
+  },
+  { 
+    href: '/admin/webhooks', 
+    label: 'Webhooks', 
+    icon: Webhook,
+    requiredRoles: ['ADMIN']
+  },
+  { 
+    href: '/admin/plugins', 
+    label: 'Plugins', 
+    icon: Puzzle,
+    requiredRoles: ['ADMIN']
+  },
+  { 
+    href: '/admin/feature-flags', 
+    label: 'Feature Flags', 
+    icon: Flag,
+    requiredRoles: ['ADMIN']
   },
   { 
     href: '/admin/users', 

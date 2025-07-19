@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { headers } from 'next/headers'
+import { WebhookTriggers } from '@/lib/webhooks/triggers'
 
 export async function GET(
   request: NextRequest,
@@ -44,7 +45,7 @@ export async function GET(
 
     // Track the click event
     try {
-      await prisma.clickEvent.create({
+      const clickEvent = await prisma.clickEvent.create({
         data: {
           linkId: affiliateLink.id,
           sessionId,
@@ -56,6 +57,22 @@ export async function GET(
           os: deviceInfo.os,
           timestamp: new Date()
         }
+      })
+
+      // Trigger webhook for link clicked event
+      await WebhookTriggers.linkClicked({
+        id: clickEvent.id,
+        linkId: affiliateLink.id,
+        sessionId,
+        timestamp: clickEvent.timestamp,
+        country: undefined, // Could be enhanced with IP geolocation
+        device: deviceInfo.device,
+        referrer: referrer || undefined,
+        product: affiliateLink.product ? {
+          id: affiliateLink.product.id,
+          title: affiliateLink.product.title,
+          slug: affiliateLink.product.slug,
+        } : null,
       })
 
       // Update link analytics
