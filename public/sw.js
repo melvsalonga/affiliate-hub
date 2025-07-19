@@ -8,7 +8,9 @@ const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/offline',
-  '/_next/static/css/app/layout.css',
+  '/pwa-settings',
+  '/share',
+  '/import',
   // Add other critical static assets
 ]
 
@@ -17,6 +19,14 @@ const API_CACHE_PATTERNS = [
   /^\/api\/products/,
   /^\/api\/categories/,
   /^\/api\/tags/,
+  /^\/api\/analytics/,
+]
+
+// Routes that should always be fresh
+const NO_CACHE_PATTERNS = [
+  /^\/api\/auth/,
+  /^\/api\/notifications/,
+  /^\/api\/price-alerts/,
 ]
 
 // Install event - cache static assets
@@ -115,12 +125,15 @@ async function handleImageRequest(request) {
 async function handleApiRequest(request) {
   const url = new URL(request.url)
   
-  // Check if this API should be cached
-  const shouldCache = API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))
+  // Check if this API should never be cached
+  const shouldNotCache = NO_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))
   
-  if (!shouldCache) {
+  if (shouldNotCache) {
     return fetch(request)
   }
+  
+  // Check if this API should be cached
+  const shouldCache = API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))
   
   try {
     // Try network first

@@ -14,7 +14,6 @@ const sendNotificationSchema = z.object({
   title: z.string(),
   body: z.string(),
   icon: z.string().optional(),
-  badge: z.string().optional(),
   image: z.string().optional(),
   tag: z.string().optional(),
   data: z.any().optional(),
@@ -26,20 +25,21 @@ const sendNotificationSchema = z.object({
   requireInteraction: z.boolean().optional(),
   silent: z.boolean().optional(),
   vibrate: z.array(z.number()).optional(),
-  userIds: z.array(z.string()).optional(), // If specified, send only to these users
-  broadcast: z.boolean().optional() // If true, send to all subscribed users
+  userIds: z.array(z.string()).optional(), // If not provided, send to all users
+  targetAudience: z.enum(['all', 'admins', 'subscribers']).optional().default('all')
 })
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
     
-    // Check if user is admin
+    // Verify admin access
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Check if user is admin
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('role')
@@ -51,20 +51,25 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const notification = sendNotificationSchema.parse(body)
+    const notificationData = sendNotificationSchema.parse(body)
 
-    // Get push subscriptions
+    // Get target users' push subscriptions
     let query = supabase
       .from('push_subscriptions')
       .select(`
-        endpoint,
-        p256dh_key,
-        auth_key,
-        user_profiles!inner(user_id)
+        *,
+        user_profiles!inner (
+          user_id,
+          role,
+          notification_preferences
+        )
       `)
 
-    if (notification.userIds && notification.userIds.length > 0) {
-      query = query.in('user_profiles.user_id', notification.userIds)
+    // Filter by target audience
+    if (notificationData.targetAudience === 'admins') {
+      query = query.eq('user_profiles.role', 'admin')
+    } else if (notificationData.userIds && notificationData.userIds.length > 0) {
+      query = query.in('user_profiles.user_id', notificationData.userIds)
     }
 
     const { data: subscriptions, error: subscriptionsError } = await query
@@ -75,28 +80,50 @@ export async function POST(request: NextRequest) {
     }
 
     if (!subscriptions || subscriptions.length === 0) {
-      return NextResponse.json({ message: 'No subscriptions found' }, { status: 200 })
+      return NextResponse.json({ 
+        success: true, 
+        message: 'No subscriptions found',
+        sent: 0 
+      })
     }
+
+    // Check quiet hours for each user
+    const now = new Date()
+    const currentTime = now.toTimeString().slice(0, 5) // HH:MM format
+
+    const validSubscriptions = subscriptions.filter(sub => {
+      const prefs = sub.user_profiles?.notification_preferences
+      if (!prefs?.quietHours?.enabled) return true
+
+      const start = prefs.quietHours.start
+      const end = prefs.quietHours.end
+      
+      // Simple time range check (doesn't handle overnight ranges perfectly)
+      if (start <= end) {
+        return currentTime < start || currentTime > end
+      } else {
+        return currentTime < start && currentTime > end
+      }
+    })
 
     // Prepare notification payload
     const payload = JSON.stringify({
-      title: notification.title,
-      body: notification.body,
-      icon: notification.icon || '/icon-192x192.png',
-      badge: notification.badge || '/badge-72x72.png',
-      image: notification.image,
-      tag: notification.tag,
-      data: notification.data,
-      actions: notification.actions,
-      requireInteraction: notification.requireInteraction || false,
-      silent: notification.silent || false,
-      vibrate: notification.vibrate || [100, 50, 100],
+      title: notificationData.title,
+      body: notificationData.body,
+      icon: notificationData.icon || '/icon-192x192.png',
+      image: notificationData.image,
+      tag: notificationData.tag || `notification-${Date.now()}`,
+      data: notificationData.data || {},
+      actions: notificationData.actions || [],
+      requireInteraction: notificationData.requireInteraction || false,
+      silent: notificationData.silent || false,
+      vibrate: notificationData.vibrate || [100, 50, 100],
       timestamp: Date.now()
     })
 
     // Send notifications
     const results = await Promise.allSettled(
-      subscriptions.map(async (subscription) => {
+      validSubscriptions.map(async (subscription) => {
         try {
           await webpush.sendNotification(
             {
@@ -112,11 +139,11 @@ export async function POST(request: NextRequest) {
               urgency: 'normal'
             }
           )
-          return { success: true, endpoint: subscription.endpoint }
+          return { success: true, subscriptionId: subscription.id }
         } catch (error) {
-          console.error('Failed to send notification:', error)
+          console.error(`Failed to send notification to subscription ${subscription.id}:`, error)
           
-          // If subscription is invalid, remove it
+          // If subscription is invalid, mark for removal
           if (error instanceof Error && (
             error.message.includes('410') || 
             error.message.includes('invalid') ||
@@ -125,10 +152,10 @@ export async function POST(request: NextRequest) {
             await supabase
               .from('push_subscriptions')
               .delete()
-              .eq('endpoint', subscription.endpoint)
+              .eq('id', subscription.id)
           }
           
-          return { success: false, endpoint: subscription.endpoint, error: error.message }
+          return { success: false, subscriptionId: subscription.id, error: error.message }
         }
       })
     )
@@ -143,11 +170,10 @@ export async function POST(request: NextRequest) {
     await supabase
       .from('notification_logs')
       .insert({
-        type: 'push',
-        title: notification.title,
-        body: notification.body,
-        recipients_count: subscriptions.length,
-        successful_count: successful,
+        title: notificationData.title,
+        body: notificationData.body,
+        target_audience: notificationData.targetAudience,
+        sent_count: successful,
         failed_count: failed,
         sent_by: user.id,
         sent_at: new Date().toISOString()
@@ -157,10 +183,72 @@ export async function POST(request: NextRequest) {
       success: true,
       sent: successful,
       failed: failed,
-      total: subscriptions.length
+      total: results.length
     })
+
   } catch (error) {
     console.error('Send notification error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// Test notification endpoint
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get user's push subscription
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    }
+
+    const { data: subscription } = await supabase
+      .from('push_subscriptions')
+      .select('*')
+      .eq('user_profile_id', profile.id)
+      .single()
+
+    if (!subscription) {
+      return NextResponse.json({ error: 'No push subscription found' }, { status: 404 })
+    }
+
+    // Send test notification
+    const payload = JSON.stringify({
+      title: '🔔 Test Notification',
+      body: 'This is a test notification from LinkVault Pro!',
+      icon: '/icon-192x192.png',
+      tag: 'test-notification',
+      data: { type: 'test' },
+      timestamp: Date.now()
+    })
+
+    await webpush.sendNotification(
+      {
+        endpoint: subscription.endpoint,
+        keys: {
+          p256dh: subscription.p256dh_key,
+          auth: subscription.auth_key
+        }
+      },
+      payload
+    )
+
+    return NextResponse.json({ success: true, message: 'Test notification sent' })
+
+  } catch (error) {
+    console.error('Test notification error:', error)
+    return NextResponse.json({ error: 'Failed to send test notification' }, { status: 500 })
   }
 }

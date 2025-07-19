@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import ModernHeader from '@/components/navigation/ModernHeader';
@@ -8,6 +8,9 @@ import AffiliateProductsProvider from '@/components/providers/MockProductsProvid
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { PWAProvider } from '@/components/providers/PWAProvider';
+import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt';
+import { OfflineSyncStatus } from '@/components/pwa/OfflineSyncStatus';
+import { FloatingSyncIndicator } from '@/components/pwa/OfflineSyncStatus';
 import { brandConfig } from '@/config/brand';
 import { Toaster } from 'react-hot-toast';
 
@@ -37,20 +40,36 @@ export const metadata: Metadata = {
     'Shopee',
     'Amazon',
     'TikTok Shop',
+    'PWA',
+    'mobile app',
+    'offline',
+    'push notifications'
   ],
   authors: [{ name: brandConfig.name }],
   creator: brandConfig.name,
+  publisher: brandConfig.name,
+  category: 'business',
   openGraph: {
     type: 'website',
     locale: 'en_US',
     title: `${brandConfig.name} - ${brandConfig.tagline}`,
     description: brandConfig.description,
     siteName: brandConfig.name,
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: `${brandConfig.name} - Professional Affiliate Marketing Platform`,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: `${brandConfig.name} - ${brandConfig.tagline}`,
     description: brandConfig.description,
+    images: ['/twitter-image.png'],
+    creator: '@linkvaultpro',
   },
   robots: {
     index: true,
@@ -68,10 +87,42 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: brandConfig.name,
+    startupImage: [
+      {
+        url: '/apple-touch-startup-image-768x1004.png',
+        media: '(device-width: 768px) and (device-height: 1024px)',
+      },
+      {
+        url: '/apple-touch-startup-image-1536x2008.png',
+        media: '(device-width: 1536px) and (device-height: 2048px)',
+      },
+    ],
   },
   formatDetection: {
     telephone: false,
+    email: false,
+    address: false,
   },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+  },
+  alternates: {
+    canonical: process.env.NEXT_PUBLIC_APP_URL || 'https://linkvaultpro.com',
+  },
+  referrer: 'origin-when-cross-origin',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: brandConfig.colors.primary[500] },
+    { media: '(prefers-color-scheme: dark)', color: brandConfig.colors.primary[600] },
+  ],
+  colorScheme: 'light dark',
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -95,6 +146,11 @@ export default function RootLayout({
                   </main>
                   <Footer />
                   <MobileNavigation />
+                  
+                  {/* PWA Components */}
+                  <PWAInstallPrompt variant="banner" />
+                  <OfflineSyncStatus variant="banner" />
+                  <FloatingSyncIndicator />
                 </div>
                 <Toaster 
                   position="top-right"
