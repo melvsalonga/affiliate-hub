@@ -17,7 +17,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Bell,
-  Search
+  Search,
+  Target,
+  Link2,
+  FileText,
+  Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -65,10 +69,34 @@ const navigationItems: NavigationItem[] = [
     requiredRoles: ['ADMIN', 'EDITOR']
   },
   { 
+    href: '/admin/links', 
+    label: 'Link Management', 
+    icon: Link2,
+    requiredRoles: ['ADMIN', 'EDITOR']
+  },
+  { 
     href: '/admin/analytics', 
     label: 'Analytics', 
     icon: BarChart3,
     requiredRoles: ['ADMIN', 'EDITOR', 'VIEWER']
+  },
+  { 
+    href: '/admin/competitive-intelligence', 
+    label: 'Competitive Intelligence', 
+    icon: Target,
+    requiredRoles: ['ADMIN', 'EDITOR', 'VIEWER']
+  },
+  { 
+    href: '/admin/content', 
+    label: 'Content', 
+    icon: FileText,
+    requiredRoles: ['ADMIN', 'EDITOR']
+  },
+  { 
+    href: '/admin/seo', 
+    label: 'SEO', 
+    icon: Zap,
+    requiredRoles: ['ADMIN', 'EDITOR']
   },
   { 
     href: '/admin/users', 

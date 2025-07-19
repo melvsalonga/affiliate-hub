@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { Container } from '@/components/layout/Container'
 import { AdvancedAnalyticsDashboard } from '@/components/analytics/AdvancedAnalyticsDashboard'
 import { RealTimeAnalytics } from '@/components/analytics/RealTimeAnalytics'
+import { RealTimeNotifications } from '@/components/analytics/RealTimeNotifications'
 import { ConversionFunnelAnalysis } from '@/components/analytics/ConversionFunnelAnalysis'
 import { CompetitorAnalysis } from '@/components/analytics/CompetitorAnalysis'
 import { PerformanceDashboard } from '@/components/performance/PerformanceDashboard'
@@ -87,6 +88,9 @@ export default function AnalyticsPage() {
           </div>
           
           <div className="flex items-center space-x-3">
+            {/* Real-Time Notifications */}
+            <RealTimeNotifications />
+            
             {/* Date Range Selector */}
             <div className="flex items-center space-x-2">
               <Calendar className="w-4 h-4 text-gray-500" />

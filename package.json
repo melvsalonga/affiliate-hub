@@ -42,6 +42,7 @@
     "slate-react": "^0.117.4",
     "tailwind-merge": "^3.3.1",
     "web-push": "^3.6.7",
+    "ws": "^8.18.3",
     "zod": "^4.0.5"
   },
   "devDependencies": {
@@ -51,6 +52,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/web-push": "^3.6.3",
+    "@types/ws": "^8.18.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
     "tailwindcss": "^4",

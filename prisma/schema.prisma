@@ -103,6 +103,7 @@ model Category {
   // Relationships
   products    Product[]
   creator     User @relation(fields: [createdBy], references: [id])
+  marketTrends MarketTrend[]
   
   @@map("categories")
 }
@@ -157,6 +158,7 @@ model Product {
   tags             ProductTag[]
   analytics        ProductAnalytics?
   priceAlerts      PriceAlert[]
+  competitorProducts CompetitorProduct[]
   
   @@map("products")
 }
@@ -448,4 +450,180 @@ model PriceAlertLog {
   priceAlert     PriceAlert @relation(fields: [priceAlertId], references: [id], onDelete: Cascade)
   
   @@map("price_alert_logs")
+}
+
+// Competitor Analysis and Market Intelligence
+model Competitor {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  domain        String   @unique
+  description   String?
+  logoUrl       String?  @map("logo_url")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  
+  // Relationships
+  products      CompetitorProduct[]
+  analytics     CompetitorAnalytics?
+  priceHistory  CompetitorPriceHistory[]
+  
+  @@map("competitors")
+}
+
+model CompetitorProduct {
+  id            String   @id @default(uuid()) @db.Uuid
+  competitorId  String   @map("competitor_id") @db.Uuid
+  productId     String?  @map("product_id") @db.Uuid // Link to our product if matched
+  name          String
+  url           String
+  currentPrice  Decimal  @map("current_price") @db.Decimal(10,2)
+  originalPrice Decimal? @map("original_price") @db.Decimal(10,2)
+  currency      String   @default("USD")
+  availability  CompetitorProductAvailability @default(IN_STOCK)
+  rating        Decimal? @db.Decimal(3,2)
+  reviewCount   Int?     @map("review_count")
+  imageUrl      String?  @map("image_url")
+  description   String?
+  features      String[] // JSON array of features
+  lastChecked   DateTime @map("last_checked") @db.Timestamptz
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  
+  // Relationships
+  competitor    Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  product       Product?   @relation(fields: [productId], references: [id])
+  priceHistory  CompetitorPriceHistory[]
+  
+  @@unique([competitorId, url])
+  @@map("competitor_products")
+}
+
+model CompetitorPriceHistory {
+  id                  String   @id @default(uuid()) @db.Uuid
+  competitorId        String   @map("competitor_id") @db.Uuid
+  competitorProductId String   @map("competitor_product_id") @db.Uuid
+  price               Decimal  @db.Decimal(10,2)
+  originalPrice       Decimal? @map("original_price") @db.Decimal(10,2)
+  currency            String   @default("USD")
+  availability        CompetitorProductAvailability @default(IN_STOCK)
+  recordedAt          DateTime @default(now()) @map("recorded_at") @db.Timestamptz
+  
+  // Relationships
+  competitor          Competitor        @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  competitorProduct   CompetitorProduct @relation(fields: [competitorProductId], references: [id], onDelete: Cascade)
+  
+  @@index([competitorProductId, recordedAt])
+  @@map("competitor_price_history")
+}
+
+model CompetitorAnalytics {
+  id                    String   @id @default(uuid()) @db.Uuid
+  competitorId          String   @unique @map("competitor_id") @db.Uuid
+  totalProducts         Int      @default(0) @map("total_products")
+  averagePrice          Decimal  @default(0) @map("average_price") @db.Decimal(10,2)
+  priceRange            Json     @map("price_range") // {min: number, max: number}
+  marketShare           Decimal  @default(0) @map("market_share") @db.Decimal(5,4)
+  competitiveAdvantage  String[] @map("competitive_advantage")
+  weaknesses            String[]
+  lastAnalyzed          DateTime @map("last_analyzed") @db.Timestamptz
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  
+  // Relationships
+  competitor            Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  
+  @@map("competitor_analytics")
+}
+
+model MarketTrend {
+  id            String     @id @default(uuid()) @db.Uuid
+  categoryId    String?    @map("category_id") @db.Uuid
+  trendType     TrendType  @map("trend_type")
+  title         String
+  description   String
+  impact        TrendImpact
+  confidence    Decimal    @db.Decimal(3,2) // 0.00 to 1.00
+  dataPoints    Json       // Array of {date, value, metadata}
+  insights      String[]   // Key insights from the trend
+  recommendations String[] // Actionable recommendations
+  startDate     DateTime   @map("start_date") @db.Timestamptz
+  endDate       DateTime?  @map("end_date") @db.Timestamptz
+  isActive      Boolean    @default(true) @map("is_active")
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+  
+  // Relationships
+  category      Category?  @relation(fields: [categoryId], references: [id])
+  
+  @@index([categoryId, trendType])
+  @@map("market_trends")
+}
+
+model CompetitiveIntelligence {
+  id                String   @id @default(uuid()) @db.Uuid
+  title             String
+  summary           String
+  analysisType      AnalysisType @map("analysis_type")
+  keyFindings       String[] @map("key_findings")
+  opportunities     String[]
+  threats           String[]
+  recommendations   String[]
+  dataSource        String   @map("data_source")
+  confidenceLevel   Decimal  @map("confidence_level") @db.Decimal(3,2)
+  impactScore       Int      @map("impact_score") // 1-10 scale
+  priority          Priority @default(MEDIUM)
+  status            IntelligenceStatus @default(ACTIVE)
+  validUntil        DateTime? @map("valid_until") @db.Timestamptz
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  
+  @@index([analysisType, priority])
+  @@map("competitive_intelligence")
+}
+
+// Additional enums for competitor analysis
+enum CompetitorProductAvailability {
+  IN_STOCK
+  OUT_OF_STOCK
+  LIMITED_STOCK
+  DISCONTINUED
+  UNKNOWN
+}
+
+enum TrendType {
+  PRICE
+  DEMAND
+  MARKET_SHARE
+  SEASONAL
+  COMPETITIVE
+  TECHNOLOGY
+  CONSUMER_BEHAVIOR
+}
+
+enum TrendImpact {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum AnalysisType {
+  PRICE_ANALYSIS
+  MARKET_POSITIONING
+  FEATURE_COMPARISON
+  CUSTOMER_SENTIMENT
+  MARKET_OPPORTUNITY
+  COMPETITIVE_LANDSCAPE
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum IntelligenceStatus {
+  ACTIVE
+  ARCHIVED
+  UNDER_REVIEW
 }

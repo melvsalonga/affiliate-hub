@@ -20,11 +20,14 @@ import {
   WifiOff,
   Pause,
   Play,
-  RefreshCw
+  RefreshCw,
+  Zap
 } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
+import { useWebSocket } from '@/hooks/useWebSocket'
+import toast from 'react-hot-toast'
 
 interface RealTimeData {
   timestamp: string
@@ -59,51 +62,165 @@ export function RealTimeAnalytics({
 }: RealTimeAnalyticsProps) {
   const [data, setData] = useState<RealTimeData[]>([])
   const [metrics, setMetrics] = useState<RealTimeMetrics | null>(null)
-  const [isConnected, setIsConnected] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+  const [wsConnected, setWsConnected] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout>()
 
-  // Fetch real-time data
+  // WebSocket connection
+  const { 
+    isConnected: wsIsConnected, 
+    isConnecting, 
+    error: wsError,
+    subscribe,
+    unsubscribe,
+    lastMessage,
+    send
+  } = useWebSocket({
+    onConnect: () => {
+      setWsConnected(true)
+      toast.success('Real-time connection established')
+    },
+    onDisconnect: () => {
+      setWsConnected(false)
+      toast.error('Real-time connection lost')
+    },
+    onError: (error) => {
+      console.error('WebSocket error:', error)
+      toast.error('Real-time connection error')
+    }
+  })
+
+  // Fetch real-time data (fallback when WebSocket is not available)
   const fetchRealTimeData = async () => {
     if (isPaused) return
 
     try {
-      const response = await fetch('/api/analytics/advanced')
+      const response = await fetch('/api/analytics/realtime')
       if (response.ok) {
-        const newMetrics = await response.json()
-        setMetrics(newMetrics)
-        setIsConnected(true)
+        const realtimeData = await response.json()
         setLastUpdate(new Date())
+
+        // Update metrics
+        setMetrics({
+          last24Hours: {
+            clicks: realtimeData.clicks,
+            conversions: realtimeData.conversions,
+            revenue: realtimeData.revenue
+          },
+          lastHour: {
+            clicks: realtimeData.clicks
+          },
+          timestamp: realtimeData.timestamp
+        })
 
         // Add to time series data
         const newDataPoint: RealTimeData = {
-          timestamp: new Date().toISOString(),
-          clicks: newMetrics.lastHour.clicks,
-          conversions: newMetrics.last24Hours.conversions,
-          revenue: newMetrics.last24Hours.revenue,
-          activeUsers: Math.floor(Math.random() * 50) + 10 // Simulated active users
+          timestamp: realtimeData.timestamp,
+          clicks: realtimeData.clicks,
+          conversions: realtimeData.conversions,
+          revenue: realtimeData.revenue,
+          activeUsers: realtimeData.activeUsers
         }
 
         setData(prevData => {
           const updatedData = [...prevData, newDataPoint]
-          return updatedData.slice(-maxDataPoints) // Keep only recent data points
+          return updatedData.slice(-maxDataPoints)
         })
-      } else {
-        setIsConnected(false)
       }
     } catch (error) {
       console.error('Failed to fetch real-time data:', error)
-      setIsConnected(false)
     }
   }
 
-  // Start/stop real-time updates
-  useEffect(() => {
-    fetchRealTimeData() // Initial fetch
+  // Trigger manual analytics update
+  const triggerManualUpdate = async () => {
+    try {
+      const response = await fetch('/api/analytics/realtime', {
+        method: 'PUT'
+      })
+      
+      if (response.ok) {
+        toast.success('Analytics update triggered')
+      } else {
+        toast.error('Failed to trigger update')
+      }
+    } catch (error) {
+      console.error('Failed to trigger manual update:', error)
+      toast.error('Failed to trigger update')
+    }
+  }
 
-    if (!isPaused) {
+  // Subscribe to WebSocket channels
+  useEffect(() => {
+    if (wsIsConnected) {
+      subscribe('analytics')
+      subscribe('notifications')
+    }
+
+    return () => {
+      if (wsIsConnected) {
+        unsubscribe('analytics')
+        unsubscribe('notifications')
+      }
+    }
+  }, [wsIsConnected, subscribe, unsubscribe])
+
+  // Handle WebSocket messages
+  useEffect(() => {
+    if (!lastMessage) return
+
+    if (lastMessage.type === 'analytics_update') {
+      const analyticsData = lastMessage.data
+      setLastUpdate(new Date())
+
+      // Update metrics
+      setMetrics({
+        last24Hours: {
+          clicks: analyticsData.clicks,
+          conversions: analyticsData.conversions,
+          revenue: analyticsData.revenue
+        },
+        lastHour: {
+          clicks: analyticsData.clicks
+        },
+        timestamp: analyticsData.timestamp
+      })
+
+      // Add to time series data
+      const newDataPoint: RealTimeData = {
+        timestamp: analyticsData.timestamp,
+        clicks: analyticsData.clicks,
+        conversions: analyticsData.conversions,
+        revenue: analyticsData.revenue,
+        activeUsers: analyticsData.activeUsers
+      }
+
+      setData(prevData => {
+        const updatedData = [...prevData, newDataPoint]
+        return updatedData.slice(-maxDataPoints)
+      })
+    } else if (lastMessage.type === 'notification') {
+      const notification = lastMessage.data
+      
+      // Show toast notification for significant changes
+      if (notification.severity === 'success') {
+        toast.success(notification.message)
+      } else if (notification.severity === 'warning') {
+        toast.error(notification.message)
+      } else {
+        toast(notification.message)
+      }
+    }
+  }, [lastMessage, maxDataPoints])
+
+  // Fallback polling when WebSocket is not connected
+  useEffect(() => {
+    if (!wsIsConnected && !isPaused) {
+      fetchRealTimeData() // Initial fetch
       intervalRef.current = setInterval(fetchRealTimeData, updateInterval)
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current)
     }
 
     return () => {
@@ -111,7 +228,7 @@ export function RealTimeAnalytics({
         clearInterval(intervalRef.current)
       }
     }
-  }, [updateInterval, isPaused])
+  }, [wsIsConnected, isPaused, updateInterval])
 
   const togglePause = () => {
     setIsPaused(!isPaused)
@@ -137,6 +254,7 @@ export function RealTimeAnalytics({
 
   const clickTrend = calculateTrend(data.map(d => d.clicks))
   const revenueTrend = calculateTrend(data.map(d => d.revenue))
+  const isConnected = wsIsConnected || !wsError
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -146,17 +264,31 @@ export function RealTimeAnalytics({
           <div className="flex items-center space-x-2">
             <div className={cn(
               'w-3 h-3 rounded-full',
-              isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+              wsIsConnected ? 'bg-green-500 animate-pulse' : 
+              isConnecting ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'
             )} />
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
               Real-Time Analytics
             </h2>
           </div>
-          {isConnected ? (
-            <Wifi className="w-5 h-5 text-green-600" />
-          ) : (
-            <WifiOff className="w-5 h-5 text-red-600" />
-          )}
+          <div className="flex items-center space-x-1">
+            {wsIsConnected ? (
+              <>
+                <Zap className="w-4 h-4 text-green-600" />
+                <span className="text-xs text-green-600 font-medium">Live</span>
+              </>
+            ) : isConnecting ? (
+              <>
+                <Wifi className="w-4 h-4 text-yellow-600 animate-pulse" />
+                <span className="text-xs text-yellow-600 font-medium">Connecting</span>
+              </>
+            ) : (
+              <>
+                <WifiOff className="w-4 h-4 text-red-600" />
+                <span className="text-xs text-red-600 font-medium">Offline</span>
+              </>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center space-x-2">
@@ -179,6 +311,34 @@ export function RealTimeAnalytics({
           >
             <RefreshCw className="w-4 h-4" />
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={triggerManualUpdate}
+            title="Trigger manual analytics update"
+          >
+            <Zap className="w-4 h-4" />
+          </Button>
+          {process.env.NODE_ENV === 'development' && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  const response = await fetch('/api/analytics/test-event')
+                  if (response.ok) {
+                    const result = await response.json()
+                    toast.success(`Test event: ${result.eventType}`)
+                  }
+                } catch (error) {
+                  toast.error('Failed to trigger test event')
+                }
+              }}
+              title="Trigger test event (dev only)"
+            >
+              Test
+            </Button>
+          )}
         </div>
       </div>
 
@@ -313,16 +473,53 @@ export function RealTimeAnalytics({
       </Card>
 
       {/* Connection Status */}
-      {!isConnected && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+      {!wsIsConnected && (
+        <div className={cn(
+          'border rounded-lg p-4',
+          isConnecting 
+            ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+        )}>
           <div className="flex items-center space-x-2">
-            <WifiOff className="w-5 h-5 text-red-600" />
-            <span className="text-red-800 dark:text-red-200 font-medium">
-              Connection Lost
+            {isConnecting ? (
+              <Wifi className="w-5 h-5 text-yellow-600 animate-pulse" />
+            ) : (
+              <WifiOff className="w-5 h-5 text-red-600" />
+            )}
+            <span className={cn(
+              'font-medium',
+              isConnecting 
+                ? 'text-yellow-800 dark:text-yellow-200'
+                : 'text-red-800 dark:text-red-200'
+            )}>
+              {isConnecting ? 'Connecting to Real-Time Stream' : 'Real-Time Connection Lost'}
             </span>
           </div>
-          <p className="text-red-700 dark:text-red-300 text-sm mt-1">
-            Unable to fetch real-time data. Trying to reconnect...
+          <p className={cn(
+            'text-sm mt-1',
+            isConnecting 
+              ? 'text-yellow-700 dark:text-yellow-300'
+              : 'text-red-700 dark:text-red-300'
+          )}>
+            {isConnecting 
+              ? 'Establishing WebSocket connection for live updates...'
+              : 'Falling back to periodic updates. WebSocket connection will retry automatically.'
+            }
+          </p>
+        </div>
+      )}
+
+      {/* WebSocket Status Info */}
+      {wsIsConnected && (
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+          <div className="flex items-center space-x-2">
+            <Zap className="w-5 h-5 text-green-600" />
+            <span className="text-green-800 dark:text-green-200 font-medium">
+              Real-Time Connection Active
+            </span>
+          </div>
+          <p className="text-green-700 dark:text-green-300 text-sm mt-1">
+            Receiving live analytics updates via WebSocket connection.
           </p>
         </div>
       )}
