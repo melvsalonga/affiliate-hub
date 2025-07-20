@@ -40,8 +40,8 @@ export function shutdownWebSocketServer() {
   }
 }
 
-// Auto-initialize in development
-if (process.env.NODE_ENV === 'development') {
+// Auto-initialize in development (client-side only)
+if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
   // In development, we'll initialize without a server for now
   // The WebSocket will work through polling fallback
   realTimeAnalytics.start()

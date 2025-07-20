@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { 
   Wifi, 
   WifiOff, 
-  Sync, 
+  RotateCw as Sync, 
   Check, 
   AlertCircle, 
   Clock, 

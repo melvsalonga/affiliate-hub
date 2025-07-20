@@ -59,13 +59,45 @@ class AnalyticsService {
 
   private currentSessionId: string;
 
+  // Helper method to safely access localStorage
+  private getFromStorage(key: string): string | null {
+    if (typeof window === 'undefined') return null;
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  private setToStorage(key: string, value: string): void {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+      console.error('Failed to save to localStorage:', error);
+    }
+  }
+
+  private removeFromStorage(key: string): void {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error('Failed to remove from localStorage:', error);
+    }
+  }
+
   constructor() {
     this.currentSessionId = this.initializeSession();
   }
 
   // Initialize or get current session
   private initializeSession(): string {
-    const existingSession = localStorage.getItem(this.STORAGE_KEYS.CURRENT_SESSION);
+    if (typeof window === 'undefined') {
+      return 'server-session-' + Date.now();
+    }
+    
+    const existingSession = this.getFromStorage(this.STORAGE_KEYS.CURRENT_SESSION);
     const sessionData = existingSession ? JSON.parse(existingSession) : null;
     
     // Check if session is still valid (less than 30 minutes old)
@@ -85,7 +117,7 @@ class AnalyticsService {
       userAgent: navigator.userAgent
     };
 
-    localStorage.setItem(this.STORAGE_KEYS.CURRENT_SESSION, JSON.stringify(newSession));
+    this.setToStorage(this.STORAGE_KEYS.CURRENT_SESSION, JSON.stringify(newSession));
     this.saveSession(newSession);
     
     return newSessionId;
@@ -287,7 +319,7 @@ class AnalyticsService {
   // Get session analytics
   getSessionAnalytics(): SessionData[] {
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEYS.SESSIONS);
+      const stored = this.getFromStorage(this.STORAGE_KEYS.SESSIONS);
       return stored ? JSON.parse(stored).map((session: any) => ({
         ...session,
         startTime: new Date(session.startTime),
@@ -356,9 +388,9 @@ class AnalyticsService {
 
   // Clear analytics data
   clearAnalytics(): void {
-    localStorage.removeItem(this.STORAGE_KEYS.CLICK_EVENTS);
-    localStorage.removeItem(this.STORAGE_KEYS.SESSIONS);
-    localStorage.removeItem(this.STORAGE_KEYS.CURRENT_SESSION);
+    this.removeFromStorage(this.STORAGE_KEYS.CLICK_EVENTS);
+    this.removeFromStorage(this.STORAGE_KEYS.SESSIONS);
+    this.removeFromStorage(this.STORAGE_KEYS.CURRENT_SESSION);
     this.currentSessionId = this.initializeSession();
   }
 
@@ -373,7 +405,7 @@ class AnalyticsService {
         existing.splice(0, existing.length - 1000);
       }
       
-      localStorage.setItem(this.STORAGE_KEYS.CLICK_EVENTS, JSON.stringify(existing));
+      this.setToStorage(this.STORAGE_KEYS.CLICK_EVENTS, JSON.stringify(existing));
     } catch (error) {
       console.error('Error saving click event:', error);
     }
@@ -381,7 +413,7 @@ class AnalyticsService {
 
   private getClickEvents(): ClickEvent[] {
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEYS.CLICK_EVENTS);
+      const stored = this.getFromStorage(this.STORAGE_KEYS.CLICK_EVENTS);
       return stored ? JSON.parse(stored).map((event: any) => ({
         ...event,
         timestamp: new Date(event.timestamp)
@@ -408,7 +440,7 @@ class AnalyticsService {
         existing.splice(0, existing.length - 100);
       }
       
-      localStorage.setItem(this.STORAGE_KEYS.SESSIONS, JSON.stringify(existing));
+      this.setToStorage(this.STORAGE_KEYS.SESSIONS, JSON.stringify(existing));
     } catch (error) {
       console.error('Error saving session:', error);
     }
@@ -416,13 +448,13 @@ class AnalyticsService {
 
   private updateSessionStats(stat: keyof Pick<SessionData, 'pageViews' | 'productViews' | 'affiliateClicks' | 'searchQueries'>): void {
     try {
-      const currentSessionData = localStorage.getItem(this.STORAGE_KEYS.CURRENT_SESSION);
+      const currentSessionData = this.getFromStorage(this.STORAGE_KEYS.CURRENT_SESSION);
       if (currentSessionData) {
         const session: SessionData = JSON.parse(currentSessionData);
         session[stat]++;
         session.endTime = new Date();
         
-        localStorage.setItem(this.STORAGE_KEYS.CURRENT_SESSION, JSON.stringify(session));
+        this.setToStorage(this.STORAGE_KEYS.CURRENT_SESSION, JSON.stringify(session));
         this.saveSession(session);
       }
     } catch (error) {
@@ -432,7 +464,7 @@ class AnalyticsService {
 
   private getProducts() {
     try {
-      const stored = localStorage.getItem('admin_products');
+      const stored = this.getFromStorage('admin_products');
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
       console.error('Error loading products:', error);

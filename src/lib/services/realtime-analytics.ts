@@ -47,6 +47,11 @@ class RealTimeAnalyticsService {
 
   async broadcastAnalyticsUpdate() {
     try {
+      // Skip server-side broadcasting to avoid cookies issue
+      if (typeof window === 'undefined') {
+        return
+      }
+      
       const supabase = await createClient()
       const now = new Date()
       const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)

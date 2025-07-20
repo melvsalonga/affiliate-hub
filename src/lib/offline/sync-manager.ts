@@ -50,9 +50,11 @@ export class OfflineSyncManager {
 
   private loadQueue(): void {
     try {
-      const stored = localStorage.getItem('offline-sync-queue')
-      if (stored) {
-        this.syncQueue = JSON.parse(stored)
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('offline-sync-queue')
+        if (stored) {
+          this.syncQueue = JSON.parse(stored)
+        }
       }
     } catch (error) {
       console.error('Failed to load sync queue:', error)
@@ -62,7 +64,9 @@ export class OfflineSyncManager {
 
   private saveQueue(): void {
     try {
-      localStorage.setItem('offline-sync-queue', JSON.stringify(this.syncQueue))
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('offline-sync-queue', JSON.stringify(this.syncQueue))
+      }
     } catch (error) {
       console.error('Failed to save sync queue:', error)
     }
@@ -314,10 +318,12 @@ export class OfflineDataManager {
 
   private loadCache(): void {
     try {
-      const stored = localStorage.getItem('offline-data-cache')
-      if (stored) {
-        const cacheData = JSON.parse(stored)
-        this.cache = new Map(cacheData)
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('offline-data-cache')
+        if (stored) {
+          const cacheData = JSON.parse(stored)
+          this.cache = new Map(cacheData)
+        }
       }
     } catch (error) {
       console.error('Failed to load offline cache:', error)
@@ -326,8 +332,10 @@ export class OfflineDataManager {
 
   private saveCache(): void {
     try {
-      const cacheData = Array.from(this.cache.entries())
-      localStorage.setItem('offline-data-cache', JSON.stringify(cacheData))
+      if (typeof window !== 'undefined') {
+        const cacheData = Array.from(this.cache.entries())
+        localStorage.setItem('offline-data-cache', JSON.stringify(cacheData))
+      }
     } catch (error) {
       console.error('Failed to save offline cache:', error)
     }
@@ -409,7 +417,9 @@ export class OfflineDataManager {
   // Clear cache
   clearCache(): void {
     this.cache.clear()
-    localStorage.removeItem('offline-data-cache')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('offline-data-cache')
+    }
   }
 }
 

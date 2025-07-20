@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getRedirect } from '@/lib/slug-management'
 
 /**
  * Middleware to handle URL redirects
+ * Note: Prisma calls are disabled in middleware due to edge runtime limitations
  */
 export async function handleRedirects(request: NextRequest): Promise<NextResponse | null> {
   const pathname = request.nextUrl.pathname
@@ -17,18 +17,9 @@ export async function handleRedirects(request: NextRequest): Promise<NextRespons
     return null
   }
   
-  try {
-    const redirect = await getRedirect(pathname)
-    
-    if (redirect) {
-      const url = request.nextUrl.clone()
-      url.pathname = redirect.toPath
-      
-      return NextResponse.redirect(url, redirect.statusCode)
-    }
-  } catch (error) {
-    console.error('Error handling redirect:', error)
-  }
+  // TODO: Implement redirect handling using edge-compatible storage
+  // For now, we'll skip database redirects in middleware
+  // Redirects can be handled at the page level instead
   
   return null
 }

@@ -7,7 +7,16 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { brandConfig } from '@/config/brand';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import dynamic from 'next/dynamic';
+
+const ClientThemeToggle = dynamic(() => import('@/components/ui/ClientThemeToggle').then(mod => ({ default: mod.ClientThemeToggle })), {
+  ssr: false,
+  loading: () => (
+    <div className="h-9 w-9 flex items-center justify-center">
+      <div className="h-4 w-4 animate-pulse bg-muted rounded"></div>
+    </div>
+  ),
+});
 import { storage } from '@/utils/localStorage';
 
 const platforms = [
@@ -142,7 +151,7 @@ export default function ModernHeader() {
 
             {/* Desktop Actions */}
             <div className="hidden lg:flex items-center space-x-3">
-              <ThemeToggle />
+              <ClientThemeToggle />
               <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
                 <User className="h-4 w-4" />
               </Button>
@@ -150,7 +159,7 @@ export default function ModernHeader() {
 
             {/* Mobile Actions */}
             <div className="flex items-center space-x-2 lg:hidden">
-              <ThemeToggle />
+              <ClientThemeToggle />
               <Button
                 variant="ghost"
                 size="sm"

@@ -1,19 +1,35 @@
 'use client';
 
 import { Sun, Moon } from 'lucide-react';
-import { useTheme } from '@/components/providers/ThemeProvider';
 import { Button } from './Button';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 
-function ThemeToggleComponent() {
+export function ClientThemeToggle() {
   const [mounted, setMounted] = useState(false);
-  const { theme, toggleTheme } = useTheme();
-  
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
   useEffect(() => {
     setMounted(true);
+    
+    // Get initial theme from DOM
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'dark' : 'light');
   }, []);
+
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    
+    if (newTheme === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+    
+    setTheme(newTheme);
+    localStorage.setItem('linkvault-theme', newTheme);
+  };
 
   // Don't render until mounted to avoid hydration mismatch
   if (!mounted) {
@@ -50,22 +66,3 @@ function ThemeToggleComponent() {
     </Button>
   );
 }
-
-// Export as dynamic component with no SSR
-export const ThemeToggle = dynamic(() => Promise.resolve(ThemeToggleComponent), {
-  ssr: false,
-  loading: () => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="h-9 w-9 p-0"
-      disabled
-    >
-      <Sun className="h-4 w-4" />
-      <span className="sr-only">Loading theme toggle</span>
-    </Button>
-  ),
-});
-
-// Keep the default export for backward compatibility
-export default ThemeToggle;
